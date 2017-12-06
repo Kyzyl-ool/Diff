@@ -6,7 +6,7 @@
 #include "files.h"
 
 int cur = 0;
-char256 print_string;
+char256 printstring;
 char256 err;
 
 tree* tree_Construct(char* tree_name)
@@ -700,33 +700,33 @@ char* constant_to_string(constant c)
 
 char* node_data(Node* node)
 {
-	for (int i = 0; i < 256; i++) print_string[i] = 0;
+	for (int i = 0; i < 256; i++) printstring[i] = 0;
 	switch (node->t)
 	{
 		case NUMBER_INT:
 		{
-			sprintf(print_string, "%d", node->value.i);
-			return print_string;
+			sprintf(printstring, "%d", node->value.i);
+			return printstring;
 		}
 		case NUMBER_DOUBLE:
 		{
-			sprintf(print_string, "%lg", node->value.d);
-			return print_string;
+			sprintf(printstring, "%lg", node->value.d);
+			return printstring;
 		}
 		case VARIABLE:
 		{
-			sprintf(print_string, "%s", vartype_to_string(node->value.vt));
-			return print_string;
+			sprintf(printstring, "%s", vartype_to_string(node->value.vt));
+			return printstring;
 		}
 		case OPERATOR:
 		{
-			sprintf(print_string, "%s", operator_to_string(node->value.o));
-			return print_string;
+			sprintf(printstring, "%s", operator_to_string(node->value.o));
+			return printstring;
 		}
 		case CONSTANT:
 		{
-			sprintf(print_string, "%s", constant_to_string(node->value.c));
-			return print_string;
+			sprintf(printstring, "%s", constant_to_string(node->value.c));
+			return printstring;
 		}
 		default:
 		{
