@@ -3,9 +3,8 @@
 #include <assert.h>
 #include "Diff.h"
 
-//#define DEBUG_DIFF
-//#define DEBUG_SIMPLIFY
-
+#define DEBUG_DIFF
+#define DEBUG_SIMPLIFY
 
 
 Node* d(Node* node)
@@ -96,6 +95,65 @@ Node* d(Node* node)
 					printf("... производная сложения взята.\n");
 					#endif
 					
+					break;
+				}
+				case POWER:
+				{
+					if (isexpression(node->right))
+					{
+						//показательная функция
+					}
+					else
+					{
+						#ifdef DEBUG_DIFF
+						printf("Взятие производной степенной функции...\n");
+						#endif
+						
+						new_node->t = OPERATOR;
+						new_node->value.o = MULTIPLY;
+						
+						new_node->left = (Node* )calloc(1, sizeof(Node));
+						new_node->right = (Node* )calloc(1, sizeof(Node));
+						new_node->left->parent = new_node;
+						new_node->right->parent = new_node;
+						new_node->left->left = NULL;
+						new_node->left->right = NULL;
+						
+						new_node->left->t = node->right->t;
+						if (new_node->left->t == NUMBER_INT)
+							new_node->left->value.i = node->right->value.i;
+						else if (new_node->left->t == NUMBER_DOUBLE)
+							new_node->left->value.d = node->right->value.d;
+						else
+							assert(0);
+						
+						new_node->right->t = OPERATOR;
+						new_node->right->value.o = POWER;
+						new_node->right->left = (Node* )calloc(1, sizeof(Node));
+						new_node->right->right = (Node* )calloc(1, sizeof(Node));
+						new_node->right->left->parent = new_node->right;
+						new_node->right->right->parent = new_node->right;
+						
+						new_node->right->left->left = NULL;
+						new_node->right->left->right = NULL;
+						new_node->right->right->left = NULL;
+						new_node->right->right->right = NULL;
+						
+						new_node->right->left->t = VARIABLE;
+						new_node->right->left->value.vt = node->left->value.vt;
+						new_node->right->right->t = node->right->t;
+						if (new_node->right->right->t == NUMBER_INT)
+							new_node->right->right->value.i = node->right->value.i - 1;
+						else if (new_node->right->right->t == NUMBER_DOUBLE)
+							new_node->right->right->value.d = node->right->value.d - 1;
+						else
+							assert(0);
+
+						#ifdef DEBUG_DIFF
+						printf("...взятие производной степенной функции завершено.\n");
+						#endif
+						break;
+					}
 					break;
 				}
 				default:
@@ -328,4 +386,25 @@ Node* simplify(Node* node)
 		simplify(node->right);
 	
 	return node;
+}
+
+Node* d_s(Node* node)
+{
+	Node* tmp = simplify(d(node));
+	simplified = 1;
+	while (simplified != 0)
+	{
+		simplified = 0;
+		tmp = simplify(tmp);
+	}
+	return tmp;
+}
+
+Node* node_Create(Node* parent, type t, data value)
+{
+	Node* new_node = (Node* )calloc(1, sizeof(Node));
+	new_node->t = t;
+	new_node->value = value;
+	new_node->parent = parent;
+	return new_node;
 }
