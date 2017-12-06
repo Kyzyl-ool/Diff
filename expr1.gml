@@ -2,80 +2,32 @@ graph
 [
 	node
 	[
-		id 140373141759904
-		label "PLUS"
-	]
-
-	node
-	[
-		id 140373141759952
+		id 140393937119104
 		label "MULTIPLY"
 	]
 
 	node
 	[
-		id 140373141760000
-		label "5"
+		id 140393937119152
+		label "0"
 	]
 
 	edge
 	[
-		source 140373141759952
-		target 140373141760000
+		source 140393937119104
+		target 140393937119152
 		label "left"
 	]
 	node
 	[
-		id 140373141760080
-		label "x"
+		id 140393937119200
+		label "0"
 	]
 
 	edge
 	[
-		source 140373141759952
-		target 140373141760080
-		label "right"
-	]
-	edge
-	[
-		source 140373141759904
-		target 140373141759952
-		label "left"
-	]
-	node
-	[
-		id 140373141760128
-		label "MULTIPLY"
-	]
-
-	node
-	[
-		id 140373141760176
-		label "3"
-	]
-
-	edge
-	[
-		source 140373141760128
-		target 140373141760176
-		label "left"
-	]
-	node
-	[
-		id 140373141760224
-		label "x"
-	]
-
-	edge
-	[
-		source 140373141760128
-		target 140373141760224
-		label "right"
-	]
-	edge
-	[
-		source 140373141759904
-		target 140373141760128
+		source 140393937119104
+		target 140393937119200
 		label "right"
 	]
 ]

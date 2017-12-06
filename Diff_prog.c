@@ -8,7 +8,14 @@ int main()
 	tree* t2 = tree_Construct("Unnamed");
 	
 	tree_Print_GML(t1, "expr1.gml");
-	t2->root = d(t1->root);
+	t2->root = simplify(d(t1->root));
+	simplified = 1;
+	while (simplified != 0)
+	{
+		simplified = 0;
+		t2->root = simplify(t2->root);
+	}
+	
 	tree_Print_GML(t2, "expr2.gml");
 	
 	tree_Destroy(t1);
