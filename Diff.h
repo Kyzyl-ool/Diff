@@ -9,7 +9,7 @@ Node* simplify(Node* node);
 Node* simplifyfy(Node* node);
 Node* d_s(Node* node);
 int ifequal(Node* node1, Node* node2);
-Node* d_complex_function(Node* node, Node* (*d)(Node* node));
+Node* d_complex_function(Node* node, Node* (*diff)(Node* node), Node* argument);
 
 Node* diff_Const(Node* node);
 Node* diff_Variable(Node* node);

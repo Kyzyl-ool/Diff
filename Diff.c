@@ -58,7 +58,8 @@ Node* d(Node* node)
 					}
 					else
 					{
-						return diff_Power_function(node);
+						//return diff_Power_function(node);
+						return d_complex_function(node, diff_Power_function, node->left);
 					}
 				}
 				case DIVIDE:
@@ -68,6 +69,39 @@ Node* d(Node* node)
 				case MINUS:
 				{
 					return diff_Difference(node);
+					//return d_complex_function(node, diff_Difference);
+				}
+				case SIN:
+				{
+					return diff_Sin(node);
+				}
+				case COS:
+				{
+					return diff_Cos(node);
+				}
+				case TAN:
+				{
+					return diff_Tan(node);
+				}
+				case SINH:
+				{
+					return diff_Sinh(node);
+				}
+				case COSH:
+				{
+					return diff_Cosh(node);
+				}
+				case TANH:
+				{
+					return diff_Tanh(node);
+				}
+				case LN:
+				{
+					return diff_Ln_function(node);
+				}
+				case LOG:
+				{
+					return diff_Logarithmic_function(node);
 				}
 				default:
 				{
@@ -369,7 +403,7 @@ Node* diff_Power_function(Node* node)
 	
 	_SET_NEWCHILD_OPERATOR(new_node->right, right, MINUS)
 	
-	_SET_CHILD_LEFT(new_node->right->right, c_parent(node->left))
+	_SET_CHILD_LEFT(new_node->right->right, c_parent(node->right))
 	_SET_NEWCHILD_INTEGER(new_node->right->right, right, 1)
 	
 	#ifdef DEBUG_DIFF
@@ -772,11 +806,16 @@ int ifequal(Node* node1, Node* node2)
 
 
 
-Node* d_complex_function(Node* node, Node* (*diff)(Node* node))
+Node* d_complex_function(Node* node, Node* (*diff)(Node* node), Node* argument)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = MULTIPLY;
-	new_node->left = diff(node);
-	new_node->right = d(node->left);
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной сложной функции...\n");
+	#endif
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY)
+	_SET_CHILD(new_node, diff(node), d(argument))
+	
+	#ifdef DEBUG_DIFF
+	printf("...взятие производной сложной функции завершено.\n");
+	#endif
 	return new_node;
 }

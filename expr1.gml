@@ -2,32 +2,56 @@ graph
 [
 	node
 	[
-		id 140558655825792
-		label "MULTIPLY"
+		id 140374886590352
+		label "POWER"
 	]
 
 	node
 	[
-		id 140558655825840
+		id 140374886590400
+		label "MINUS"
+	]
+
+	node
+	[
+		id 140374886590448
 		label "x"
 	]
 
 	edge
 	[
-		source 140558655825792
-		target 140558655825840
+		source 140374886590400
+		target 140374886590448
 		label "left"
 	]
 	node
 	[
-		id 140558655825888
-		label "5"
+		id 140374886590496
+		label "2"
 	]
 
 	edge
 	[
-		source 140558655825792
-		target 140558655825888
+		source 140374886590400
+		target 140374886590496
+		label "right"
+	]
+	edge
+	[
+		source 140374886590352
+		target 140374886590400
+		label "left"
+	]
+	node
+	[
+		id 140374886590544
+		label "3"
+	]
+
+	edge
+	[
+		source 140374886590352
+		target 140374886590544
 		label "right"
 	]
 ]
