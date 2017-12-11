@@ -5,8 +5,8 @@
 
 #define DEBUG_DIFF
 #define DEBUG_SIMPLIFY
-#define _CREATE_CHILD(the_parent, the_node, the_type) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = the_type;
-#define _SET_NEWCHILD(the_parent, left_or_right, the_type) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = the_type;
+#define _CREATE_CHILD(the_parent, the_node, the_type) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = the_type; the_node->left = NULL; the_node->right = NULL;
+#define _SET_NEWCHILD(the_parent, left_or_right, the_type) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = the_type; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL;
 					
 
 Node* d(Node* node)
@@ -101,7 +101,7 @@ Node* d(Node* node)
 				}
 				case POWER:
 				{
-					if (isexpression(node->right))
+					if (if_depends_on_variable(node->right))
 					{
 						//показательная функция
 						#ifdef DEBUG_DIFF
@@ -119,6 +119,43 @@ Node* d(Node* node)
 						printf("Взятие производной степенной функции...\n");
 						#endif
 						
+						new_node->t = OPERATOR;
+						new_node->value.o = MULTIPLY;
+						
+						_SET_NEWCHILD(new_node, left, node->right->t)
+						if (new_node->left->t == NUMBER_DOUBLE)
+						{
+							new_node->left->value.d = node->right->value.d;
+						}						
+						else if (new_node->left->t == NUMBER_INT)
+						{
+							new_node->left->value.i = node->right->value.i;
+						}
+						else
+						{
+							assert(0);
+						}
+						
+						_SET_NEWCHILD(new_node, right, OPERATOR)
+						new_node->right->value.o = POWER;
+						
+						new_node->right->left = c(node->left);
+						
+						_SET_NEWCHILD(new_node->right, right, node->right->t)
+						if (new_node->right->right->t == NUMBER_DOUBLE)
+						{
+							new_node->left->value.d = node->right->value.d - 1;
+						}						
+						else if (new_node->right->right->t == NUMBER_INT)
+						{
+							new_node->left->value.i = node->right->value.i - 1;
+						}
+						else
+						{
+							assert(0);
+						}
+						
+						/*
 						new_node->t = OPERATOR;
 						new_node->value.o = MULTIPLY;
 						
@@ -158,7 +195,7 @@ Node* d(Node* node)
 							new_node->right->right->value.d = node->right->value.d - 1;
 						else
 							assert(0);
-
+						*/
 						#ifdef DEBUG_DIFF
 						printf("...взятие производной степенной функции завершено.\n");
 						#endif
@@ -252,25 +289,29 @@ Node* d(Node* node)
 Node* c(Node* node)
 {
 	Node* copy = (Node* )calloc(1, sizeof(Node));
-	copy->parent = node->parent;
+	*copy = *node;
 	if (node->left)
-		copy->left = c(node->left);
+		{
+			copy->left = (Node* )calloc(1, sizeof(Node));
+			*copy->left = *node->left;
+		}
 	if (node->right)
-		copy->right = c(node->right);
-	copy->t = node->t;
-	copy->value = node->value;
+	{
+			copy->right = (Node* )calloc(1, sizeof(Node));
+			*copy->right = *node->right;
+	}
 	return copy;
 }
 
-int isexpression(Node* node)
+int if_depends_on_variable(Node* node)
 {
 	if (node->t == VARIABLE)
 		return 1;
 	
-	if (node->left && isexpression(node->left) == 1)
+	if (node->left && if_depends_on_variable(node->left) == 1)
 			return 1;
 	
-	if (node->right && isexpression(node->right) == 1)
+	if (node->right && if_depends_on_variable(node->right) == 1)
 			return 1;
 	
 	return 0;
@@ -363,7 +404,7 @@ Node* simplify(Node* node)
 					#endif
 					Node* tmp = node->parent;
 					tree_node_Destroy(node);
-					_CREATE_CHILD(tmp, node, NUMBER_INT);
+					_CREATE_CHILD(tmp, node, NUMBER_INT)
 					node->value.i = 0;
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -533,6 +574,18 @@ Node* d_s(Node* node)
 	return tmp;
 }
 
+Node* simplifyfy(Node* node)
+{
+	Node* tmp = simplify(node);
+	simplified = 1;
+	while (simplified != 0)
+	{
+		simplified = 0;
+		tmp = simplify(tmp);
+	}
+	return tmp;
+}
+
 int ifequal(Node* node1, Node* node2)
 {
 	switch (node1->t)
@@ -577,4 +630,15 @@ int ifequal(Node* node1, Node* node2)
 			assert(0);
 		}
 	}
+}
+
+
+
+Node* d_complex_function(Node* node, Node* (*diff)(Node* node))
+{
+	_CREATE_CHILD(node->parent, new_node, OPERATOR)
+	new_node->value.o = MULTIPLY;
+	new_node->left = diff(node);
+	new_node->right = d(node->left);
+	return new_node;
 }
