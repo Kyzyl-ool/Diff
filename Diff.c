@@ -44,80 +44,30 @@ Node* d(Node* node)
 			{
 				case MULTIPLY:
 				{
-					#ifdef DEBUG_DIFF
-					printf("Берется производная умножения...\n");
-					#endif
-					
 					return diff_Multiply(node);
-					
-					#ifdef DEBUG_DIFF
-					printf("... производная умножения взята.\n");
-					#endif
 				}
 				case PLUS:
 				{
-					#ifdef DEBUG_DIFF
-					printf("Берётся производная сложения...\n");
-					#endif
-					
 					return diff_Addition(node);
-					
-					#ifdef DEBUG_DIFF
-					printf("... производная сложения взята.\n");
-					#endif
 				}
 				case POWER:
 				{
 					if (if_depends_on_variable(node->right))
 					{
-						//показательная функция
-						#ifdef DEBUG_DIFF
-						printf("Взятие производной показательной функции...\n");
-						#endif
-						
 						return diff_Exponential_function(node);
-						
-						#ifdef DEBUG_DIFF
-						printf("..производная показательной функции взята.\n");
-						#endif
 					}
 					else
 					{
-						#ifdef DEBUG_DIFF
-						printf("Взятие производной степенной функции...\n");
-						#endif
-						
 						return diff_Power_function(node);
-						
-						#ifdef DEBUG_DIFF
-						printf("...взятие производной степенной функции завершено.\n");
-						#endif
 					}
 				}
 				case DIVIDE:
 				{
-					#ifdef DEBUG_DIFF
-					printf("Берется производная частного...\n");
-					#endif
-					
 					return diff_Division(node);
-					
-					#ifdef DEBUG_DIFF
-					printf("...взятие производной частного завершено.\n");
-					#endif
 				}
 				case MINUS:
 				{
-					#ifdef DEBUG_DIFF
-					printf("Взятие производной разности...\n");
-					#endif
-					
 					return diff_Difference(node);
-					
-					
-					#ifdef DEBUG_DIFF
-					printf("...взятие производной разности завершено.\n");
-					#endif
 				}
 				default:
 				{
@@ -226,18 +176,31 @@ Node* diff_Variable(Node* node)
 
 Node* diff_Multiply(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Берется производная умножения...\n");
+	#endif
+				
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, PLUS)
 	_SET_NEWCHILD_OPERATOR(new_node, left, MULTIPLY)
 	_SET_NEWCHILD_OPERATOR(new_node, right, MULTIPLY)
 	
 	_SET_CHILD(new_node->left, d(node->left), c_parent(node->right))
 	_SET_CHILD(new_node->right, c_parent(node->left), d(node->right))
-	
+		
+	#ifdef DEBUG_DIFF
+	printf("... производная умножения взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Division(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Берется производная частного...\n");
+	#endif
+					
+					
+
 	#define u node->left
 	#define v node->right
 	
@@ -258,13 +221,18 @@ Node* diff_Division(Node* node)
 	
 	#undef u
 	#undef v
-	
+	#ifdef DEBUG_DIFF
+	printf("...взятие производной частного завершено.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Addition(Node* node)
 {
-	
+	#ifdef DEBUG_DIFF
+	printf("Берётся производная сложения...\n");
+	#endif
+					
 	#define u node->left
 	#define v node->right
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, PLUS)
@@ -273,11 +241,19 @@ Node* diff_Addition(Node* node)
 	#undef u
 	#undef v
 	
+	
+	#ifdef DEBUG_DIFF
+	printf("... производная сложения взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Difference(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной разности...\n");
+	#endif
+	
 	#define u node->left
 	#define v node->right
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, MINUS)
@@ -286,19 +262,31 @@ Node* diff_Difference(Node* node)
 	#undef u
 	#undef v
 	
+	#ifdef DEBUG_DIFF
+	printf("...взятие производной разности завершено.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Sin(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной sin...\n");
+	#endif
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, COS)
 	_SET_CHILD_LEFT(new_node, c_parent(node->left))
 	
+	#ifdef DEBUG_DIFF
+	printf("...производная sin взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Cos(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной cos..\n");
+	#endif
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY)
 	
 	_SET_NEWCHILD_INTEGER(new_node, left, -1)
@@ -308,31 +296,69 @@ Node* diff_Cos(Node* node)
 	_SET_CHILD_LEFT(new_node->right, c_parent(node->left))
 	
 	
+	#ifdef DEBUG_DIFF
+	printf("...производная cos взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Tan(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной tan...\n");
+	#endif
+	
+	
 	assert(0);
+	
+	#ifdef DEBUG_DIFF
+	printf("...производная tan взята.\n");
+	#endif
 }
 
 Node* diff_Sinh(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной sinh...\n");
+	#endif
 	assert(0);
+	
+	#ifdef DEBUG_DIFF
+	printf("...производная sinh взята.\n");
+	#endif
 }
 
 Node* diff_Cosh(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной cosh...\n");
+	#endif
 	assert(0);
+	
+	#ifdef DEBUG_DIFF
+	printf("...производная cosh взята.\n");
+	#endif
 }
 
 Node* diff_Tanh(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной tanh...\n");
+	#endif
 	assert(0);
+	
+	#ifdef DEBUG_DIFF
+	printf("...производная tanh взята.\n");
+	#endif
 }
 
 Node* diff_Power_function(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной степенной функции...\n");
+	#endif
+						
+
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY)
 	
 	_SET_CHILD_LEFT(new_node, c_parent(node->right))
@@ -346,11 +372,18 @@ Node* diff_Power_function(Node* node)
 	_SET_CHILD_LEFT(new_node->right->right, c_parent(node->left))
 	_SET_NEWCHILD_INTEGER(new_node->right->right, right, 1)
 	
+	#ifdef DEBUG_DIFF
+	printf("...взятие производной степенной функции завершено.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Exponential_function(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной показательной функции...\n");
+	#endif
+						
 	#define f node->left
 	#define g node->right
 	
@@ -374,22 +407,34 @@ Node* diff_Exponential_function(Node* node)
 	#undef f
 	#undef g
 	
+	#ifdef DEBUG_DIFF
+	printf("..производная показательной функции взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Ln_function(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной натурального логарифма...\n");
+	#endif
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE)
 	
 	_SET_NEWCHILD_INTEGER(new_node, left, 1)
 	
 	_SET_CHILD_RIGHT(new_node, node->left)
 	
+	#ifdef DEBUG_DIFF
+	printf("...производная натурального логарифма взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Logarithmic_function(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Взятие производной логарифма...\n");
+	#endif
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE)
 	
 	_SET_NEWCHILD_INTEGER(new_node, left, 1)
@@ -403,6 +448,10 @@ Node* diff_Logarithmic_function(Node* node)
 	
 	_SET_CHILD_LEFT(new_node->right->right, c_parent(node->right))
 	
+	
+	#ifdef DEBUG_DIFF
+	printf("...производная логарифма взята.\n");
+	#endif
 	return new_node;
 }
 
