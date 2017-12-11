@@ -95,7 +95,7 @@ int tree_Delete_node(Node* node)
 		default:
 		{
 			#ifdef DEBUG
-			printf("tree_Delete_node: TREE_NODE_FIASKO\n");
+			printf("tree_node_Destroy: TREE_NODE_FIASKO\n");
 			#endif
 			return TREE_NODE_FIASKO;
 			break;

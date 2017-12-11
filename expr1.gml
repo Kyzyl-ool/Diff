@@ -2,56 +2,32 @@ graph
 [
 	node
 	[
-		id 140328640194448
-		label "DIVIDE"
+		id 140410496231296
+		label "MULTIPLY"
 	]
 
 	node
 	[
-		id 140328640194496
-		label "SIN"
+		id 140410496231344
+		label "0"
 	]
 
+	edge
+	[
+		source 140410496231296
+		target 140410496231344
+		label "left"
+	]
 	node
 	[
-		id 140328640194544
+		id 140410496231392
 		label "x"
 	]
 
 	edge
 	[
-		source 140328640194496
-		target 140328640194544
-		label "left"
-	]
-	edge
-	[
-		source 140328640194448
-		target 140328640194496
-		label "left"
-	]
-	node
-	[
-		id 140328640194592
-		label "COS"
-	]
-
-	node
-	[
-		id 140328640194640
-		label "x"
-	]
-
-	edge
-	[
-		source 140328640194592
-		target 140328640194640
-		label "left"
-	]
-	edge
-	[
-		source 140328640194448
-		target 140328640194592
+		source 140410496231296
+		target 140410496231392
 		label "right"
 	]
 ]
