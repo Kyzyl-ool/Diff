@@ -29,27 +29,11 @@ Node* d(Node* node)
 		case NUMBER_INT:
 		case CONSTANT:
 		{
-			#ifdef DEBUG_DIFF
-			printf("Берется производная числа...\n");
-			#endif
-			
 			return diff_Const(node);
-			
-			#ifdef DEBUG_DIFF
-			printf("...производная числа взята.\n");
-			#endif
 		}
 		case VARIABLE:
 		{
-			#ifdef DEBUG_DIFF
-			printf("Берется производная переменной...\n");
-			#endif
-			
 			return diff_Variable(node);
-			
-			#ifdef DEBUG_DIFF
-			printf("... производная переменной взята.\n");
-			#endif
 		}
 		case OPERATOR:
 		{
@@ -73,7 +57,7 @@ Node* d(Node* node)
 				case PLUS:
 				{
 					#ifdef DEBUG_DIFF
-					printf("Берётся производная сложения...");
+					printf("Берётся производная сложения...\n");
 					#endif
 					
 					return diff_Addition(node);
@@ -211,16 +195,31 @@ int if_depends_on_variable(Node* node)
 
 Node* diff_Const(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Берется производная числа...\n");
+	#endif
+			
 	_CREATE_CHILD(node->parent, new_node, NUMBER_INT)
 	new_node->value.i = 0;
 	
+	#ifdef DEBUG_DIFF
+	printf("...производная числа взята.\n");
+	#endif
 	return new_node;
 }
 
 Node* diff_Variable(Node* node)
 {
+	#ifdef DEBUG_DIFF
+	printf("Берется производная переменной...\n");
+	#endif
+			
+
 	_CREATE_CHILD(node->parent, new_node, NUMBER_INT)
 	new_node->value.i = 1;
+	#ifdef DEBUG_DIFF
+	printf("... производная переменной взята.\n");
+	#endif
 	
 	return new_node;
 }
@@ -265,6 +264,7 @@ Node* diff_Division(Node* node)
 
 Node* diff_Addition(Node* node)
 {
+	
 	#define u node->left
 	#define v node->right
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, PLUS)
