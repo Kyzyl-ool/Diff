@@ -544,9 +544,22 @@ Node* simplify(Node* node)
 					*node = tmp;
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение умножения на единицу завершнено.\n");
+					printf("...упрощение умножения на единицу завернено.\n");
 					#endif
 					break;
+				}
+				if (node->left->t == NUMBER_INT && node->left->value.i == -1 && node->right->t == NUMBER_INT && node->right->value.i == -1)
+				{
+					#ifdef DEBUG_SIMPLIFY
+					printf("Упрощение (-1)*(-1)...\n");
+					#endif
+					free(node->left);
+					free(node->right);
+					node->value.i = 1;
+					simplified += 1;
+					#ifdef DEBUG_SIMPLIFY
+					printf("...упрощение (-1)*(-1) завершено.\n");
+					#endif
 				}
 				break;
 			}
