@@ -9,6 +9,8 @@ int cur = 0;
 char256 printstring;
 char256 err;
 
+#define DEBUG
+
 tree* tree_Construct(char* tree_name)
 {
 	tree* t = (tree *)calloc(1, sizeof(tree));
@@ -58,6 +60,9 @@ int tree_Insert_to_end(Node* parental_node, node_code who, type t, data value)
 		}
 		default:
 		{
+			#ifdef DEBUG
+			printf("tree_Insert_to_end: TREE_INSERT_TO_END_WITH_INVALID_PARENT\n");
+			#endif
 			free(new_node);
 			return TREE_INSERT_TO_END_WITH_INVALID_PARENT;
 		}
@@ -73,19 +78,27 @@ int tree_Delete_node(Node* node)
 		{
 			node->parent->left = NULL;
 			free(node);
+			break;
 		}
 		case RIGHT_NODE:
 		{
 			node->parent->right = NULL;
 			free(node);
+			break;
 		}
 		case TREE_TRYING_TO_LEARN_ABOUT_ROOT:
 		{
+			free(node);
 			return TREE_TRYING_TO_DELETE_ROOT;
+			break;
 		}
 		default:
 		{
+			#ifdef DEBUG
+			printf("tree_Delete_node: TREE_NODE_FIASKO\n");
+			#endif
 			return TREE_NODE_FIASKO;
+			break;
 		}
 	}
 	free(node);
@@ -231,6 +244,9 @@ int tree_node_check_old(Node* node)
 
 int tree_check(tree* t)
 {
+	#ifdef DEBUG
+	printf("WHY ARE YOU USING tree_check?\n");
+	#endif
 	return 999;
 }
 
@@ -392,6 +408,10 @@ int array_Find(unsigned long long int* array, unsigned long long int value, int 
 		if (array[i] == value)
 			return i;
 	}
+	
+	#ifdef DEBUG
+	printf("array_Find returned -1\n");
+	#endif
 	return -1;
 }
 
@@ -623,6 +643,12 @@ Node* tree_read_node(char* text, int* i)
 				}
 				break;
 			}
+			default:
+			{
+				#ifdef DEBUG
+				printf("tree_read_node: UNKNOWN SYMBOL READ\n");
+				#endif
+			}
 			
 		}
 		
@@ -671,7 +697,13 @@ char* operator_to_string(operator o)
 		_RET_CODE(MULTIPLY)
 		_RET_CODE(DIVIDE)
 		_RET_CODE(POWER)
-		default: return "UNKNOWN_OPERATOR";
+		default:
+		{
+			#ifdef DEBUG
+			printf("operator_to_string HAD GOT UNKNOWN OPERATOR\n");
+			#endif
+			return "UNKNOWN_OPERATOR";
+		}
 		#undef _RET_CODE
 	}
 }
@@ -730,6 +762,9 @@ char* node_data(Node* node)
 		}
 		default:
 		{
+			#ifdef DEBUG
+			printf("node_data HAD GOT INVALID NODE TYPE\n");
+			#endif
 			return "INVALID_NODE_TYPE";
 		}
 	}

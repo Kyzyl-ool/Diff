@@ -5,7 +5,9 @@
 
 #define DEBUG_DIFF
 #define DEBUG_SIMPLIFY
-
+#define _CREATE_CHILD(the_parent, the_node, the_type) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = the_type;
+#define _SET_NEWCHILD(the_parent, left_or_right, the_type) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = the_type;
+					
 
 Node* d(Node* node)
 {
@@ -169,12 +171,10 @@ Node* d(Node* node)
 					#ifdef DEBUG_DIFF
 					printf("Берется производная частного...\n");
 					#endif
-					#define _CREATE_CHILD(the_parent, the_node, the_type) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = the_type;
-					#define _SET_NEWCHILD(the_parent, left_or_right, the_type) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = the_type;
 					Node* u = c(node->left);
 					Node* v = c(node->right);
 					
-					_CREATE_CHILD(node->parent, new_node, OPERATOR)
+					new_node->t = OPERATOR;
 					new_node->value.o = DIVIDE;
 					
 					_SET_NEWCHILD(new_node, left, OPERATOR)
@@ -191,15 +191,19 @@ Node* d(Node* node)
 					
 					new_node->left->left->left = d(u);
 					new_node->left->left->right = c(v);
+					new_node->left->right->left = c(u);
+					new_node->left->right->right = d(v);
 					
 					_SET_NEWCHILD(new_node->right, right, NUMBER_INT);
 					new_node->right->right->value.i = 2;
+					new_node->right->right->left = NULL;
+					new_node->right->right->right = NULL;
 					
 					new_node->right->left = c(v);
 					
+					free(u);
+					free(v);
 					
-					#undef _CREATE_NODE
-					#undef _SET_NEWCHILD
 					#ifdef DEBUG_DIFF
 					printf("...взятие производной частного завершено.\n");
 					#endif
@@ -211,9 +215,17 @@ Node* d(Node* node)
 					printf("Взятие производной разности...\n");
 					#endif
 					
+					new_node->t = OPERATOR;
+					new_node->value.o = MINUS;
+					
+					new_node->left = d(node->left);
+					new_node->right = d(node->right);
+					
+					
 					#ifdef DEBUG_DIFF
 					printf("...взятие производной разности завершено.\n");
 					#endif
+					break;
 				}
 				default:
 				{
@@ -349,12 +361,10 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение частного с нулевым делимым...\n");
 					#endif
-					tree_Delete_node(node->left);
-					tree_Delete_node(node->right);
-					node->t = NUMBER_INT;
+					Node* tmp = node->parent;
+					tree_node_Destroy(node);
+					_CREATE_CHILD(tmp, node, NUMBER_INT);
 					node->value.i = 0;
-					node->left = NULL;
-					node->right = NULL;
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
 					printf("...упрощение частного с нулевым делимым завершено.\n");
@@ -428,6 +438,26 @@ Node* simplify(Node* node)
 					#endif
 					break;
 				}
+				if (ifequal(node->left, node->right))
+				{
+					#ifdef DEBUG_DIFF
+					printf("Упрощение a-a...\n");
+					#endif
+					
+					tree_Delete_node(node->left);
+					tree_Delete_node(node->right);
+					node->t = NUMBER_INT;
+					node->value.i = 0;
+					node->left = NULL;
+					node->right = NULL;
+					simplified += 1;
+					
+					
+					#ifdef DEBUG_DIFF
+					printf("...упрощение a-a выполнено.\n");
+					#endif
+					break;
+				}
 				break;
 			}
 			case POWER:
@@ -442,6 +472,7 @@ Node* simplify(Node* node)
 						Node tmp = *node->left;
 						free(node->right);
 						*node = tmp;
+						simplified += 1;
 						#ifdef DEBUG_DIFF
 						printf("...упрощение вида a^1 завершено.\n");
 						#endif
@@ -462,6 +493,7 @@ Node* simplify(Node* node)
 							node->left = NULL;
 							node->right = NULL;
 							node->parent = tmp;
+							simplified += 1;
 							#ifdef DEBUG_DIFF
 							printf("...упрощение выражения вида a^0 завершено.\n");
 							#endif
@@ -485,7 +517,7 @@ Node* simplify(Node* node)
 		simplify(node->left);
 	if (node->right)
 		simplify(node->right);
-	
+
 	return node;
 }
 
@@ -499,4 +531,50 @@ Node* d_s(Node* node)
 		tmp = simplify(tmp);
 	}
 	return tmp;
+}
+
+int ifequal(Node* node1, Node* node2)
+{
+	switch (node1->t)
+	{
+		case OPERATOR:
+		{
+			if (ifequal(node1->left, node2->left) && ifequal(node1->right, node2->right))
+				return 1;
+			else
+				return 0;
+		}
+		case VARIABLE:
+		{
+			if (node1->value.vt == node2->value.vt)
+				return 1;
+			else
+				return 0;
+		}
+		case NUMBER_INT:
+		{
+			if (node1->value.i == node2->value.i)
+				return 1;
+			else
+				return 0;
+		}
+		case NUMBER_DOUBLE:
+		{
+			if (node1->value.d == node2->value.d)
+				return 1;
+			else
+				return 0;
+		}
+		case CONSTANT:
+		{
+			if (node1->value.c == node2->value.c)
+				return 1;
+			else
+				return 0;
+		}
+		default:
+		{
+			assert(0);
+		}
+	}
 }
