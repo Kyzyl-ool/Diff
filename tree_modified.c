@@ -479,15 +479,14 @@ Node* tree_read_node(char* text, int* i)
 		Node* node = (Node* )calloc(1, sizeof(Node));
 		int ii = 0;
 		char256 label;
-		*i += 2;
-		while (text[*i] != '\"')
+		*i += 1;
+		while (text[*i] != '(' && text[*i] != ')')
 		{
 			label[ii] = text[*i];
 			*i += 1;
 			ii++;
 		}
 		label[ii] = '\0';
-		*i += 1;
 		char256 tmp;
 		array_Assign(tmp, label, 0);
 		switch (tmp[0])
@@ -598,7 +597,7 @@ Node* tree_read_node(char* text, int* i)
 					}
 					else
 					{
-						node->value.o = COT;	
+						node->value.o = COT;
 					}
 				}
 				break;
@@ -663,8 +662,9 @@ Node* tree_read_node(char* text, int* i)
 		}
 		
 		node->left = tree_read_node(text, i);
+		if (node->left) *i += 1;
 		node->right = tree_read_node(text, i);
-		*i += 1;
+		if (node->right) *i += 1;
 		return node;
 	}
 	else
