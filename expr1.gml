@@ -2,56 +2,56 @@ graph
 [
 	node
 	[
-		id 140374886590352
+		id 140383359084432
 		label "POWER"
 	]
 
 	node
 	[
-		id 140374886590400
+		id 140383359084480
 		label "MINUS"
 	]
 
 	node
 	[
-		id 140374886590448
+		id 140383359084528
 		label "x"
 	]
 
 	edge
 	[
-		source 140374886590400
-		target 140374886590448
+		source 140383359084480
+		target 140383359084528
 		label "left"
 	]
 	node
 	[
-		id 140374886590496
+		id 140383359084576
 		label "2"
 	]
 
 	edge
 	[
-		source 140374886590400
-		target 140374886590496
+		source 140383359084480
+		target 140383359084576
 		label "right"
 	]
 	edge
 	[
-		source 140374886590352
-		target 140374886590400
+		source 140383359084432
+		target 140383359084480
 		label "left"
 	]
 	node
 	[
-		id 140374886590544
+		id 140383359084624
 		label "3"
 	]
 
 	edge
 	[
-		source 140374886590352
-		target 140374886590544
+		source 140383359084432
+		target 140383359084624
 		label "right"
 	]
 ]

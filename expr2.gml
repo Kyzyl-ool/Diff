@@ -2,152 +2,104 @@ graph
 [
 	node
 	[
-		id 140374887628800
+		id 140383359084704
 		label "MULTIPLY"
 	]
 
 	node
 	[
-		id 140374887628944
-		label "MULTIPLY"
-	]
-
-	node
-	[
-		id 140374887629040
+		id 140383359084944
 		label "3"
 	]
 
 	edge
 	[
-		source 140374887628944
-		target 140374887629040
+		source 140383359084704
+		target 140383359084944
 		label "left"
 	]
 	node
 	[
-		id 140374887629088
+		id 140383359084992
 		label "POWER"
 	]
 
 	node
 	[
-		id 140374887629184
+		id 140383359085088
 		label "MINUS"
 	]
 
 	node
 	[
-		id 140374887629232
+		id 140383359085136
 		label "x"
 	]
 
 	edge
 	[
-		source 140374887629184
-		target 140374887629232
+		source 140383359085088
+		target 140383359085136
 		label "left"
 	]
 	node
 	[
-		id 140374887629280
+		id 140383359085184
 		label "2"
 	]
 
 	edge
 	[
-		source 140374887629184
-		target 140374887629280
+		source 140383359085088
+		target 140383359085184
 		label "right"
 	]
 	edge
 	[
-		source 140374887629088
-		target 140374887629184
+		source 140383359084992
+		target 140383359085088
 		label "left"
 	]
 	node
 	[
-		id 140374887629328
+		id 140383359085232
 		label "MINUS"
 	]
 
 	node
 	[
-		id 140374887629424
+		id 140383359085328
 		label "3"
 	]
 
 	edge
 	[
-		source 140374887629328
-		target 140374887629424
+		source 140383359085232
+		target 140383359085328
 		label "left"
 	]
 	node
 	[
-		id 140374887629472
+		id 140383359085376
 		label "1"
 	]
 
 	edge
 	[
-		source 140374887629328
-		target 140374887629472
+		source 140383359085232
+		target 140383359085376
 		label "right"
 	]
 	edge
 	[
-		source 140374887629088
-		target 140374887629328
+		source 140383359084992
+		target 140383359085232
 		label "right"
 	]
 	edge
 	[
-		source 140374887628944
-		target 140374887629088
-		label "right"
-	]
-	edge
-	[
-		source 140374887628800
-		target 140374887628944
-		label "left"
-	]
-	node
-	[
-		id 140374887629520
-		label "MINUS"
-	]
-
-	node
-	[
-		id 140374887629664
-		label "1"
-	]
-
-	edge
-	[
-		source 140374887629520
-		target 140374887629664
-		label "left"
-	]
-	node
-	[
-		id 140374887629712
-		label "0"
-	]
-
-	edge
-	[
-		source 140374887629520
-		target 140374887629712
-		label "right"
-	]
-	edge
-	[
-		source 140374887628800
-		target 140374887629520
+		source 140383359084704
+		target 140383359084992
 		label "right"
 	]
 ]

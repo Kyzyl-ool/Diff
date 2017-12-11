@@ -58,7 +58,6 @@ Node* d(Node* node)
 					}
 					else
 					{
-						//return diff_Power_function(node);
 						return d_complex_function(node, diff_Power_function, node->left);
 					}
 				}
@@ -69,39 +68,38 @@ Node* d(Node* node)
 				case MINUS:
 				{
 					return diff_Difference(node);
-					//return d_complex_function(node, diff_Difference);
 				}
 				case SIN:
 				{
-					return diff_Sin(node);
+					return d_complex_function(node, diff_Sin, node->left);
 				}
 				case COS:
 				{
-					return diff_Cos(node);
+					return d_complex_function(node, diff_Cos, node->left);
 				}
 				case TAN:
 				{
-					return diff_Tan(node);
+					return d_complex_function(node, diff_Tan, node->left);
 				}
 				case SINH:
 				{
-					return diff_Sinh(node);
+					return d_complex_function(node, diff_Sinh, node->left);
 				}
 				case COSH:
 				{
-					return diff_Cosh(node);
+					return d_complex_function(node, diff_Cosh, node->left);
 				}
 				case TANH:
 				{
-					return diff_Tanh(node);
+					return d_complex_function(node, diff_Tanh, node->left);
 				}
 				case LN:
 				{
-					return diff_Ln_function(node);
+					return d_complex_function(node, diff_Ln_function, node->left);
 				}
 				case LOG:
 				{
-					return diff_Logarithmic_function(node);
+					return d_complex_function(node, diff_Logarithmic_function, node->left);
 				}
 				default:
 				{
