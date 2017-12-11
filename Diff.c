@@ -5,9 +5,18 @@
 
 #define DEBUG_DIFF
 #define DEBUG_SIMPLIFY
+
 #define _CREATE_CHILD(the_parent, the_node, the_type) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = the_type; the_node->left = NULL; the_node->right = NULL;
-#define _SET_NEWCHILD(the_parent, left_or_right, the_type) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = the_type; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL;
-					
+#define _CREATE_CHILD_OPERATOR(the_parent, the_node, the_value) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = OPERATOR; the_node->left = NULL; the_node->right = NULL; the_node->value.o = the_value;
+
+#define _SET_CHILD(the_parent, who_is_left, who_is_right) the_parent->left = (Node* )calloc(1, sizeof(Node)); the_parent->right = (Node* )calloc(1, sizeof(Node)); the_parent->left->parent = the_parent; the_parent->right->parent = the_parent; the_parent->left = who_is_left; the_parent->right = who_is_right;
+#define _SET_CHILD_LEFT(the_parent, who_is_left) the_parent->left = (Node* )calloc(1, sizeof(Node)); the_parent->left->parent = the_parent; the_parent->left = who_is_left;
+#define _SET_CHILD_RIGHT(the_parent, who_is_right) the_parent->right = (Node* )calloc(1, sizeof(Node)); the_parent->right->parent = the_parent; the_parent->right = who_is_right;
+
+#define _SET_NEWCHILD_OPERATOR(the_parent, left_or_right, the_value) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = OPERATOR; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL; the_parent->left_or_right->value.o = the_value;
+#define _SET_NEWCHILD_INTEGER(the_parent, left_or_right, the_value) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = NUMBER_INT; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL; the_parent->left_or_right->value.i = the_value;
+#define _SET_NEWCHILD_DOUBLE(the_parent, left_or_right, the_value) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = NUMBER_DOUBLE; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL; the_parent->left_or_right->value.d = the_value;
+
 
 Node* d(Node* node)
 {
@@ -41,7 +50,6 @@ Node* d(Node* node)
 			#ifdef DEBUG_DIFF
 			printf("... производная переменной взята.\n");
 			#endif
-			break;
 		}
 		case OPERATOR:
 		{
@@ -55,45 +63,24 @@ Node* d(Node* node)
 					#ifdef DEBUG_DIFF
 					printf("Берется производная умножения...\n");
 					#endif
-					new_node->t = OPERATOR;
-					new_node->value.o = PLUS;
 					
-					new_node->left = (Node* )calloc(1, sizeof(Node));
-					new_node->right = (Node*)calloc(1, sizeof(Node));
-					new_node->left->parent = new_node;
-					new_node->right->parent = new_node;
-					
-					new_node->left->t = OPERATOR;
-					new_node->left->value.o = MULTIPLY;
-					new_node->left->left = d(node->left);
-					new_node->left->right = c(node->right);
-					
-					new_node->right->t = OPERATOR;
-					new_node->right->value.o = MULTIPLY;
-					new_node->right->left = c(node->left);
-					new_node->right->right = d(node->right);
+					return diff_Multiply(node);
 					
 					#ifdef DEBUG_DIFF
 					printf("... производная умножения взята.\n");
 					#endif
-					break;
 				}
 				case PLUS:
 				{
 					#ifdef DEBUG_DIFF
 					printf("Берётся производная сложения...");
 					#endif
-					new_node->t = OPERATOR;
-					new_node->value.o = PLUS;
 					
-					new_node->left = d(node->left);
-					new_node->right = d(node->right);
+					return diff_Addition(node);
 					
 					#ifdef DEBUG_DIFF
 					printf("... производная сложения взята.\n");
 					#endif
-					
-					break;
 				}
 				case POWER:
 				{
@@ -103,7 +90,8 @@ Node* d(Node* node)
 						#ifdef DEBUG_DIFF
 						printf("Взятие производной показательной функции...\n");
 						#endif
-						assert(0);
+						
+						return diff_Exponential_function(node);
 						
 						#ifdef DEBUG_DIFF
 						printf("..производная показательной функции взята.\n");
@@ -115,98 +103,24 @@ Node* d(Node* node)
 						printf("Взятие производной степенной функции...\n");
 						#endif
 						
+						return diff_Power_function(node);
 						
-						
-						/*
-						new_node->t = OPERATOR;
-						new_node->value.o = MULTIPLY;
-						
-						new_node->left = (Node* )calloc(1, sizeof(Node));
-						new_node->right = (Node* )calloc(1, sizeof(Node));
-						new_node->left->parent = new_node;
-						new_node->right->parent = new_node;
-						new_node->left->left = NULL;
-						new_node->left->right = NULL;
-						
-						new_node->left->t = node->right->t;
-						if (new_node->left->t == NUMBER_INT)
-							new_node->left->value.i = node->right->value.i;
-						else if (new_node->left->t == NUMBER_DOUBLE)
-							new_node->left->value.d = node->right->value.d;
-						else
-							assert(0);
-						
-						new_node->right->t = OPERATOR;
-						new_node->right->value.o = POWER;
-						new_node->right->left = (Node* )calloc(1, sizeof(Node));
-						new_node->right->right = (Node* )calloc(1, sizeof(Node));
-						new_node->right->left->parent = new_node->right;
-						new_node->right->right->parent = new_node->right;
-						
-						new_node->right->left->left = NULL;
-						new_node->right->left->right = NULL;
-						new_node->right->right->left = NULL;
-						new_node->right->right->right = NULL;
-						
-						new_node->right->left->t = VARIABLE;
-						new_node->right->left->value.vt = node->left->value.vt;
-						new_node->right->right->t = node->right->t;
-						if (new_node->right->right->t == NUMBER_INT)
-							new_node->right->right->value.i = node->right->value.i - 1;
-						else if (new_node->right->right->t == NUMBER_DOUBLE)
-							new_node->right->right->value.d = node->right->value.d - 1;
-						else
-							assert(0);
-						*/
 						#ifdef DEBUG_DIFF
 						printf("...взятие производной степенной функции завершено.\n");
 						#endif
-						break;
 					}
-					break;
 				}
 				case DIVIDE:
 				{
 					#ifdef DEBUG_DIFF
 					printf("Берется производная частного...\n");
 					#endif
-					Node* u = c(node->left);
-					Node* v = c(node->right);
 					
-					new_node->t = OPERATOR;
-					new_node->value.o = DIVIDE;
-					
-					_SET_NEWCHILD(new_node, left, OPERATOR)
-					new_node->left->value.o = MINUS;
-					
-					_SET_NEWCHILD(new_node, right, OPERATOR)
-					new_node->right->value.o = POWER;
-					
-					_SET_NEWCHILD(new_node->left, left, OPERATOR)
-					new_node->left->left->value.o = MULTIPLY;
-					
-					_SET_NEWCHILD(new_node->left, right, OPERATOR)
-					new_node->left->right->value.o = MULTIPLY;
-					
-					new_node->left->left->left = d(u);
-					new_node->left->left->right = c(v);
-					new_node->left->right->left = c(u);
-					new_node->left->right->right = d(v);
-					
-					_SET_NEWCHILD(new_node->right, right, NUMBER_INT);
-					new_node->right->right->value.i = 2;
-					new_node->right->right->left = NULL;
-					new_node->right->right->right = NULL;
-					
-					new_node->right->left = c(v);
-					
-					free(u);
-					free(v);
+					return diff_Division(node);
 					
 					#ifdef DEBUG_DIFF
 					printf("...взятие производной частного завершено.\n");
 					#endif
-					break;
 				}
 				case MINUS:
 				{
@@ -214,23 +128,17 @@ Node* d(Node* node)
 					printf("Взятие производной разности...\n");
 					#endif
 					
-					new_node->t = OPERATOR;
-					new_node->value.o = MINUS;
-					
-					new_node->left = d(node->left);
-					new_node->right = d(node->right);
+					return diff_Difference(node);
 					
 					
 					#ifdef DEBUG_DIFF
 					printf("...взятие производной разности завершено.\n");
 					#endif
-					break;
 				}
 				default:
 				{
 					printf("НЕ РЕАЛИЗОВАНО ВЗЯТИЕ ПРОИЗВОДНОЙ ДЛЯ [%s]\n", operator_to_string(node->value.o));
 					assert(0);
-					break;
 				}
 			}
 			break;
@@ -245,7 +153,8 @@ Node* d(Node* node)
 	#ifdef DEBUG_DIFF
 	printf("...функция d с типом [%s] завершила работу.\n", type_to_string(node->t));
 	#endif
-	return new_node;
+	
+	assert(0);
 }
 
 Node* c(Node* node)
@@ -262,6 +171,27 @@ Node* c(Node* node)
 			copy->right = (Node* )calloc(1, sizeof(Node));
 			*copy->right = *node->right;
 	}
+		
+	return copy;
+}
+
+Node* c_parent(Node* node)
+{
+	Node* copy = (Node* )calloc(1, sizeof(Node));
+	*copy = *node;
+	if (node->left)
+		{
+			copy->left = (Node* )calloc(1, sizeof(Node));
+			*copy->left = *node->left;
+		}
+	if (node->right)
+	{
+			copy->right = (Node* )calloc(1, sizeof(Node));
+			*copy->right = *node->right;
+	}
+	
+	copy->parent = node->parent;
+		
 	return copy;
 }
 
@@ -297,186 +227,181 @@ Node* diff_Variable(Node* node)
 
 Node* diff_Multiply(Node* node)
 {
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, PLUS)
+	_SET_NEWCHILD_OPERATOR(new_node, left, MULTIPLY)
+	_SET_NEWCHILD_OPERATOR(new_node, right, MULTIPLY)
 	
+	_SET_CHILD(new_node->left, d(node->left), c_parent(node->right))
+	_SET_CHILD(new_node->right, c_parent(node->left), d(node->right))
+	
+	return new_node;
 }
 
 Node* diff_Division(Node* node)
 {
+	#define u node->left
+	#define v node->right
 	
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE)
+	
+	_SET_NEWCHILD_OPERATOR(new_node, left, MINUS)
+	_SET_NEWCHILD_OPERATOR(new_node, right, POWER)
+	
+	_SET_NEWCHILD_OPERATOR(new_node->left, left, MULTIPLY)
+	_SET_NEWCHILD_OPERATOR(new_node->left, right, MULTIPLY)
+	
+	_SET_CHILD_LEFT(new_node->right, c_parent(v))
+	_SET_NEWCHILD_INTEGER(new_node->right, right, 2);
+	
+	_SET_CHILD(new_node->left->left, d(u), c_parent(v))
+	
+	_SET_CHILD(new_node->left->right, c_parent(u), d(v))
+	
+	#undef u
+	#undef v
+	
+	return new_node;
 }
 
 Node* diff_Addition(Node* node)
 {
+	#define u node->left
+	#define v node->right
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, PLUS)
+	_SET_CHILD(new_node, d(u), d(v))
 	
+	#undef u
+	#undef v
+	
+	return new_node;
 }
 
 Node* diff_Difference(Node* node)
 {
+	#define u node->left
+	#define v node->right
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, MINUS)
+	_SET_CHILD(new_node, d(u), d(v))
 	
+	#undef u
+	#undef v
+	
+	return new_node;
 }
 
 Node* diff_Sin(Node* node)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = COS;
-	new_node->left = c(node->left);
-	new_node->left->parent = new_node;
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, COS)
+	_SET_CHILD_LEFT(new_node, c_parent(node->left))
 	
 	return new_node;
 }
 
 Node* diff_Cos(Node* node)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = MULTIPLY;
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY)
 	
-	_SET_NEWCHILD(new_node, left, NUMBER_INT)
-	new_node->left->value.i = -1;
+	_SET_NEWCHILD_INTEGER(new_node, left, -1)
 	
-	_SET_NEWCHILD(new_node, right, OPERATOR)
-	new_node->right->value.o = SIN;
+	_SET_NEWCHILD_OPERATOR(new_node, right, SIN)
 	
-	new_node->right->left = c(node->left);
-	new_node->right->left->parent = new_node->right;
+	_SET_CHILD_LEFT(new_node->right, c_parent(node->left))
+	
 	
 	return new_node;
 }
 
 Node* diff_Tan(Node* node)
 {
-	
+	assert(0);
 }
 
 Node* diff_Sinh(Node* node)
 {
-	
+	assert(0);
 }
 
 Node* diff_Cosh(Node* node)
 {
-	
+	assert(0);
 }
 
 Node* diff_Tanh(Node* node)
 {
-	
+	assert(0);
 }
 
 Node* diff_Power_function(Node* node)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = MULTIPLY;
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY)
 	
-	_SET_NEWCHILD(new_node, left, node->right->t)
-	if (new_node->left->t == NUMBER_DOUBLE)
-	{
-		new_node->left->value.d = node->right->value.d;
-	}						
-	else if (new_node->left->t == NUMBER_INT)
-	{
-		new_node->left->value.i = node->right->value.i;
-	}
-	else
-	{
-		assert(0);
-	}
+	_SET_CHILD_LEFT(new_node, c_parent(node->right))
 	
-	_SET_NEWCHILD(new_node, right, OPERATOR)
-	new_node->right->value.o = POWER;
+	_SET_NEWCHILD_OPERATOR(new_node, right, POWER)
 	
-	new_node->right->left = c(node->left);
-	new_node->right->parent = new_node->right;
+	_SET_CHILD_LEFT(new_node->right, c_parent(node->left))
 	
-	_SET_NEWCHILD(new_node->right, right, node->right->t)
-	if (new_node->right->right->t == NUMBER_DOUBLE)
-	{
-		new_node->right->right->value.d = node->right->value.d - 1;
-	}						
-	else if (new_node->right->right->t == NUMBER_INT)
-	{
-		new_node->right->right->value.i = node->right->value.i - 1;
-	}
-	else
-	{
-		assert(0);
-	}
+	_SET_NEWCHILD_OPERATOR(new_node->right, right, MINUS)
+	
+	_SET_CHILD_LEFT(new_node->right->right, c_parent(node->left))
+	_SET_NEWCHILD_INTEGER(new_node->right->right, right, 1)
 	
 	return new_node;
 }
 
 Node* diff_Exponential_function(Node* node)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = MULTIPLY;
+	#define f node->left
+	#define g node->right
 	
-	_SET_NEWCHILD(new_node, left, OPERATOR)
-	new_node->left->value.o = PLUS;
-	new_node->right = c(node);
-	new_node->right->parent = new_node;
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY)
+	_SET_CHILD_RIGHT(new_node, c_parent(node))
+	_SET_NEWCHILD_OPERATOR(new_node, left, PLUS)
 	
-	_SET_NEWCHILD(new_node->left, left, OPERATOR)
-	new_node->left->left->value.o = MULTIPLY;
-	_SET_NEWCHILD(new_node->left, right, OPERATOR)
-	new_node->left->right->value.o = MULTIPLY;
+	_SET_NEWCHILD_OPERATOR(new_node->left, left, MULTIPLY)
+	_SET_NEWCHILD_OPERATOR(new_node->left, right, MULTIPLY)
 	
-	_SET_NEWCHILD(new_node->left->left, left, OPERATOR)
-	new_node->left->left->left->value.o = DIVIDE;
+	_SET_NEWCHILD_OPERATOR(new_node->left->left, left, DIVIDE)
+	_SET_CHILD_RIGHT(new_node->left->left, d(f))
 	
-	new_node->left->left->right = d(node->left);
-	new_node->left->left->right->parent = new_node->left->left;
+	_SET_CHILD(new_node->left->left->left, g, f)
 	
-	new_node->left->left->left->left = c(node->right);
-	new_node->left->left->left->left->parent = new_node->left->left->left;
+	_SET_CHILD_LEFT(new_node->left->right, d(g))
+	_SET_NEWCHILD_OPERATOR(new_node->left->right, right, LN)
 	
-	new_node->left->left->left->right = c(node->left);
-	new_node->left->left->left->right->parent = new_node->left->left->left;
+	_SET_CHILD_LEFT(new_node->left->right->right, c_parent(f))
 	
-	new_node->left->right->left = d(node->right);
-	new_node->left->right->left->parent = new_node->left->right;
-	
-	_SET_NEWCHILD(new_node->left->right, right, OPERATOR)
-	new_node->left->right->right->value.o = LN;
-	
-	new_node->left->right->right->left = c(node->left);
-	new_node->left->right->right->left->parent = new_node->left->right->right;
+	#undef f
+	#undef g
 	
 	return new_node;
-	
 }
 
 Node* diff_Ln_function(Node* node)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = DIVIDE;
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE)
 	
-	_SET_NEWCHILD(new_node, left, NUMBER_INT)
-	new_node->left->value.i = 1;
+	_SET_NEWCHILD_INTEGER(new_node, left, 1)
 	
-	new_node->right = c(node->left);
-	new_node->right->parent = new_node;
+	_SET_CHILD_RIGHT(new_node, node->left)
 	
 	return new_node;
 }
 
 Node* diff_Logarithmic_function(Node* node)
 {
-	_CREATE_CHILD(node->parent, new_node, OPERATOR)
-	new_node->value.o = DIVIDE;
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE)
 	
-	_SET_NEWCHILD(new_node, left, NUMBER_INT)
-	new_node->left->value.i = 1;
+	_SET_NEWCHILD_INTEGER(new_node, left, 1)
 	
-	_SET_NEWCHILD(new_node, right, OPERATOR)
-	new_node->right->value.o = MULTIPLY;
+	_SET_NEWCHILD_OPERATOR(new_node, right, MULTIPLY)
 	
-	new_node->right->left = c(node->left);
-	new_node->right->left->parent = new_node->right;
+	_SET_CHILD_LEFT(new_node->right, c_parent(node->left))
 	
-	_SET_NEWCHILD(new_node->right, right, OPERATOR)
-	new_node->right->right->value.o = LN;
 	
-	new_node->right->right->left = c(node->right);
-	new_node->right->right->left->parent = new_node->right->right;
+	_SET_NEWCHILD_OPERATOR(new_node->right, right, LN)
+	
+	_SET_CHILD_LEFT(new_node->right->right, c_parent(node->right))
 	
 	return new_node;
 }

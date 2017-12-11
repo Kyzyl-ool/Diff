@@ -2,32 +2,32 @@ graph
 [
 	node
 	[
-		id 140333128099712
-		label "POWER"
+		id 140732560058240
+		label "DIVIDE"
 	]
 
 	node
 	[
-		id 140333128099760
+		id 140732560058288
 		label "x"
 	]
 
 	edge
 	[
-		source 140333128099712
-		target 140333128099760
+		source 140732560058240
+		target 140732560058288
 		label "left"
 	]
 	node
 	[
-		id 140333128099808
-		label "6"
+		id 140732560058336
+		label "x"
 	]
 
 	edge
 	[
-		source 140333128099712
-		target 140333128099808
+		source 140732560058240
+		target 140732560058336
 		label "right"
 	]
 ]
