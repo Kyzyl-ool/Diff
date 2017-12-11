@@ -102,6 +102,7 @@ int tree_Delete_node(Node* node)
 		}
 	}
 	free(node);
+	return 0;
 }
 
 int tree_node_which_am_I_child(Node* node)
@@ -604,9 +605,18 @@ Node* tree_read_node(char* text, int* i)
 			}
 			case 'l':
 			{
-				node->t = OPERATOR;
-				node->value.o = LN;
-				break;
+				if (tmp[1] == 'n')
+				{
+					node->t = OPERATOR;
+					node->value.o = LN;
+					break;
+				}
+				else if (tmp[1] == 'o')
+				{
+					node->t = OPERATOR;
+					node->value.o = LOG;
+					break;
+				}
 			}
 			case 'e':
 			{
@@ -686,6 +696,7 @@ char* operator_to_string(operator o)
 		_RET_CODE(SIN)
 		_RET_CODE(COS)
 		_RET_CODE(LN)
+		_RET_CODE(LOG)
 		_RET_CODE(TAN)
 		_RET_CODE(COT)
 		_RET_CODE(SINH)
