@@ -31,8 +31,9 @@ int test = 0;
 #define _IF_EQUAL(node1, node2) (node1->t == NUMBER_INT && node2->t == NUMBER_INT && node1->value.i == node2->value.i) || (node1->t == NUMBER_DOUBLE && node2->t == NUMBER_DOUBLE && node1->value.d == node2->value.d)
 #define _IF_EQUAL_TO(the_node, the_value) (the_node->t == NUMBER_INT && the_node->value.i == the_value) || (the_node->t == NUMBER_DOUBLE && the_node->value.d == the_value)
 
-#define _RAISE_LEFT(the_node) if (the_node->parent->left == the_node) { tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->left = the_node; the_node->parent = tmp_par;} else { tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->left); tmp_par->right = the_node; the_node->parent = tmp_par; }
-#define _RAISE_RIGHT(the_node) if (the_node->parent->left == the_node) { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->left = the_node; the_node->parent = tmp_par; } else { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->right = the_node; the_node->parent = tmp_par; }
+#define _RAISE_LEFT(the_node) if (the_node->parent) if (the_node->parent->left == the_node) {tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->left = the_node;the_node->parent = tmp_par;}else{tree_node_Destroy(the_node->right);Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->right = the_node;the_node->parent = tmp_par;} else{tree_node_Destroy(the_node->right);the_node = c_parent(the_node->left);the_node->parent = NULL;}
+
+#define _RAISE_RIGHT(the_node) if (the_node->parent) if (the_node->parent->left == the_node) { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->left = the_node; the_node->parent = tmp_par; } else { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->right = the_node; the_node->parent = tmp_par;} else {tree_node_Destroy(the_node->left);  the_node = c_parent(the_node->right); the_node->parent = NULL;}
 
 #define DO(operation) printf("%s\n", #operation); operation
 
@@ -580,7 +581,6 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("...упрощение a*1 завершено.\n");
 					#endif
-					
 					break;
 				}
 				

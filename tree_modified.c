@@ -21,12 +21,18 @@ tree* tree_Construct(char* tree_name)
 
 void tree_Destroy(tree* t)
 {
+	#ifdef DEBUG
+	assert(t);
+	#endif
 	tree_node_Destroy(t->root);
 	free(t);
 }
 
 void tree_node_Destroy(Node* node)
 {
+	#ifdef DEBUG
+	assert(node);
+	#endif
 	if (node->left)
 	{
 		tree_node_Destroy(node->left);
@@ -72,6 +78,9 @@ int tree_Insert_to_end(Node* parental_node, node_code who, type t, data value)
 
 int tree_Delete_node(Node* node)
 {
+	#ifdef DEBUG
+	assert(node);
+	#endif
 	switch (tree_node_which_am_I_child(node))
 	{
 		case LEFT_NODE:
@@ -107,7 +116,9 @@ int tree_Delete_node(Node* node)
 
 int tree_node_which_am_I_child(Node* node)
 {
+	#ifdef DEBUG
 	assert(node);
+	#endif
 	if (node->parent)
 	{
 		if (node->parent->left && node->parent->left == node)
@@ -305,7 +316,9 @@ void tree_print_meaning_of_error_code_old(int code)
 
 int tree_Print_GML(tree* t, char* gml_file_name)
 {
+	#ifdef DEBUG
 	assert(t);
+	#endif
 	FILE* dump = fopen(gml_file_name, "w");
 	
 	fprintf(dump, "graph\n[\n");
@@ -320,7 +333,9 @@ int tree_Print_GML(tree* t, char* gml_file_name)
 
 void tree_node_print_GML(Node* node, FILE* dump)
 {
+	#ifdef DEBUG
 	assert(node);
+	#endif
 	fprintf(dump, "	node\n	[\n		id %llu\n		label \"%s\"\n	]\n\n", (unsigned long long int)node, node_data(node));
 	if (node->left)
 	{
@@ -337,6 +352,10 @@ void tree_node_print_GML(Node* node, FILE* dump)
 
 void tree_edge_print_GML(Node* node1, Node* node2, double value, FILE* dump, char* who)
 {
+	#ifdef DEBUG
+	assert(node1);
+	assert(node2);
+	#endif
 	if (value)
 		fprintf(dump, "	edge\n	[\n		source %llu\n		target %llu		value %lg\n		label \"%s\"\n	]\n", (unsigned long long int)node1, (unsigned long long int)node2, value, who);
 	else
@@ -432,6 +451,9 @@ void array_Assign(char* arr1, char* arr2, char apart_from_ends)
 
 void tree_Print_DED(tree* t, char* ded_file_name)
 {
+	#ifdef DEBUG
+	assert(t);
+	#endif
 	FILE* fo = fopen(ded_file_name, "w");
 	
 	tree_node_print(t->root, fo);
@@ -743,6 +765,9 @@ char* constant_to_string(constant c)
 
 char* node_data(Node* node)
 {
+	#ifdef DEBUG
+	assert(node);
+	#endif
 	for (int i = 0; i < 256; i++) printstring[i] = 0;
 	switch (node->t)
 	{
