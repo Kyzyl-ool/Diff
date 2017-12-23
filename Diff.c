@@ -9,6 +9,8 @@ Node* tmp1;
 Node* tmp2;
 Node* tmp3;
 
+int test = 0;
+
 #define DEBUG_DIFF
 #define DEBUG_SIMPLIFY
 
@@ -23,14 +25,14 @@ Node* tmp3;
 #define _SET_NEWCHILD_INTEGER(the_parent, left_or_right, the_value) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = NUMBER_INT; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL; the_parent->left_or_right->value.i = the_value
 #define _SET_NEWCHILD_DOUBLE(the_parent, left_or_right, the_value) the_parent->left_or_right = (Node* )calloc(1, sizeof(Node)); the_parent->left_or_right->parent = the_parent; the_parent->left_or_right->t = NUMBER_DOUBLE; the_parent->left_or_right->left = NULL; the_parent->left_or_right->right = NULL; the_parent->left_or_right->value.d = the_value
 
+#define _SET_INTEGER(the_node, the_value) if (the_node->left) tree_node_Destroy(the_node->left); if (the_node->right) tree_node_Destroy(the_node->right); the_node->t = NUMBER_INT; the_node->value.i = the_value; the_node->left = NULL; the_node->right = NULL
+#define _SET_DOUBLE(the_node, the_value) if (the_node->left) tree_node_Destroy(the_node->left); if (the_node->right) tree_node_Destroy(the_node->right); the_node->t = NUMBER_DOUBLE; the_node->value.d = the_value; the_node->left = NULL; the_node->right = NULL
+
 #define _IF_EQUAL(node1, node2) (node1->t == NUMBER_INT && node2->t == NUMBER_INT && node1->value.i == node2->value.i) || (node1->t == NUMBER_DOUBLE && node2->t == NUMBER_DOUBLE && node1->value.d == node2->value.d)
 #define _IF_EQUAL_TO(the_node, the_value) (the_node->t == NUMBER_INT && the_node->value.i == the_value) || (the_node->t == NUMBER_DOUBLE && the_node->value.d == the_value)
 
-#define _TRANSLATE(the_to, the_from) the_to->t = the_from->t; the_to->value = the_from->value; the_to->left = the_from->left; the_to->right = the_from->right; the_to->parent = the_from->parent
-#define _SWAP(node1, node2) tmp_data = node1->value; node1->value = node2->value; node2->value = tmp_data; tmp_type = node1->t; node1->t = node2->t; node2->t = tmp_type
-#define _FREE(the_node) free(the_node); the_node = NULL
-#define _RAISE_RIGHT(the_parent, child) tmp1 = child->right; tmp2 = child->left; child->right = the_parent; child->left = the_parent->left; the_parent->right = tmp1; the_parent->left = tmp2; tmp1->parent = the_parent; tmp2->parent = the_parent; child->left->parent = child; tmp3 = the_parent->parent; the_parent->parent = child; child->parent = tmp3;
-#define _RAISE_LEFT(the_parent, child) tmp1 = child->left; tmp2 = child->right; child->left = the_parent; child->right = the_parent->right; the_parent->right = tmp1; the_parent->left = tmp2; tmp1->parent = the_parent; tmp2->parent = the_parent; child->right->parent = child; tmp3 = the_parent->parent; the_parent->parent = child; child->parent = tmp3;
+#define _RAISE_LEFT(the_node) if (the_node->parent->left == the_node) { tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->left = the_node; the_node->parent = tmp_par;} else { tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->left); tmp_par->right = the_node; the_node->parent = tmp_par; }
+#define _RAISE_RIGHT(the_node) if (the_node->parent->left == the_node) { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->left = the_node; the_node->parent = tmp_par; } else { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->right = the_node; the_node->parent = tmp_par; }
 
 #define DO(operation) printf("%s\n", #operation); operation
 
@@ -163,14 +165,15 @@ Node* c_parent(Node* node)
 	if (node->left)
 	{
 		copy->left = c_parent(node->left);
+		copy->left->parent = copy;
 	}
 	if (node->right)
 	{
 		copy->right = c_parent(node->right);
+		copy->right->parent = copy;
 	}
 	
 	
-	copy->parent = node->parent;
 	
 	return copy;
 }
@@ -509,6 +512,7 @@ Node* simplify(Node* node)
 	#ifdef DEBUG_SIMPLIFY
 	printf("Получил узел с типом [%s]...\n", type_to_string(node->t));
 	#endif
+	
 	if (node->t == OPERATOR)
 	{
 		#ifdef DEBUG_SIMPLIFY
@@ -518,17 +522,13 @@ Node* simplify(Node* node)
 		{
 			case MULTIPLY:
 			{
-				
 				if (_IF_EQUAL_TO(node->left, 0))
 				{
+					
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение 0*a...\n");
 					#endif
-					_SWAP(node, node->left);
-					tree_node_Destroy(node->right);
-					free(node->left);
-					node->left = NULL;
-					node->right = NULL;
+					_SET_INTEGER(node, 0);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -536,32 +536,30 @@ Node* simplify(Node* node)
 					#endif
 					break;
 				}
+				
+				
 				if (_IF_EQUAL_TO(node->right, 0))
 				{
+					
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение a*0...\n");
 					#endif
-					_SWAP(node, node->right);
-					tree_node_Destroy(node->left);
-					free(node->right);
-					node->left = NULL;
-					node->right = NULL;
+					_SET_INTEGER(node, 0);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
 					printf("...упрощение a*0 выполнено.\n");
 					#endif
+					break;
 				}
 				
 				if (_IF_EQUAL_TO(node->left, 1))
 				{
+					
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение 1*a...\n");
 					#endif
-					Node tmp = *node->right;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
+					_RAISE_RIGHT(node);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -572,35 +570,33 @@ Node* simplify(Node* node)
 				
 				if (_IF_EQUAL_TO(node->right, 1))
 				{
+					
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение a*1...\n");
 					#endif
-					Node tmp = *node->left;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
+					_RAISE_LEFT(node);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
 					printf("...упрощение a*1 завершено.\n");
 					#endif
+					
 					break;
 				}
 				
 				if (_IF_EQUAL_TO(node->left, -1) && _IF_EQUAL_TO(node->right, -1))
 				{
+					
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение (-1)*(-1)...\n");
 					#endif
-					_SWAP(node->left, node);
-					_FREE(node->left);
-					_FREE(node->right);
-					node->value.i = 1;
+					_SET_INTEGER(node, 1);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
 					printf("...упрощение (-1)*(-1) завершено.\n");
 					#endif
+					break;
 				}
 				
 				break;
@@ -612,9 +608,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение a/1...\n");
 					#endif
-					_SWAP(node, node->left);
-					_FREE(node->left);
-					_FREE(node->right);
+					_RAISE_LEFT(node);
 										
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -627,10 +621,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение 0/a...\n");
 					#endif
-					_SWAP(node, node->left);
-					_FREE(node->left);
-					tree_node_Destroy(node->right);
-					node->right = NULL;
+					_SET_INTEGER(node, 0);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -647,9 +638,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение 0+a...\n");
 					#endif
-					_SWAP(node, node->right);
-					_FREE(node->left);
-					_FREE(node->right);
+					_RAISE_RIGHT(node);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -662,9 +651,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение a+0...\n");
 					#endif
-					_SWAP(node, node->left);
-					_FREE(node->left);
-					_FREE(node->right);
+					_RAISE_LEFT(node);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -696,9 +683,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_SIMPLIFY
 					printf("Упрощение a-0...\n");
 					#endif
-					_SWAP(node, node->left);
-					_FREE(node->left);
-					_FREE(node->right);
+					_RAISE_LEFT(node);
 					
 					simplified += 1;
 					#ifdef DEBUG_SIMPLIFY
@@ -711,13 +696,8 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_DIFF
 					printf("Упрощение a-a...\n");
 					#endif
+					_SET_INTEGER(node, 0);
 					
-					free(node->left);
-					free(node->right);
-					node->t = NUMBER_INT;
-					node->value.i = 0;
-					node->left = NULL;
-					node->right = NULL;
 					simplified += 1;
 					#ifdef DEBUG_DIFF
 					printf("...упрощение a-a выполнено.\n");
@@ -733,9 +713,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_DIFF
 					printf("Упрощение выражения вида a^1...\n");
 					#endif
-					_SWAP(node, node->left);
-					_FREE(node->left);
-					_FREE(node->right);
+					_RAISE_LEFT(node);
 					
 					simplified += 1;
 					#ifdef DEBUG_DIFF
@@ -748,11 +726,7 @@ Node* simplify(Node* node)
 					#ifdef DEBUG_DIFF
 					printf("Упрощение выражения вида a^0...\n");
 					#endif
-					_SWAP(node, node->right);
-					_FREE(node->right);
-					tree_node_Destroy(node->left);
-					node->left = NULL;
-					node->value.i = 1;
+					_SET_INTEGER(node, 1);
 					
 					simplified += 1;
 					#ifdef DEBUG_DIFF

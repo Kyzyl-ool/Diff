@@ -2,80 +2,80 @@ graph
 [
 	node
 	[
-		id 140222465583056
+		id 140314002073552
 		label "DIVIDE"
 	]
 
 	node
 	[
-		id 140222465583104
+		id 140314002073600
 		label "MINUS"
 	]
 
 	node
 	[
-		id 140222465583152
+		id 140314002073648
 		label "POWER"
 	]
 
 	node
 	[
-		id 140222465583200
+		id 140314002073696
 		label "x"
 	]
 
 	edge
 	[
-		source 140222465583152
-		target 140222465583200
+		source 140314002073648
+		target 140314002073696
 		label "left"
 	]
 	node
 	[
-		id 140222465583248
+		id 140314002073744
 		label "2"
 	]
 
 	edge
 	[
-		source 140222465583152
-		target 140222465583248
+		source 140314002073648
+		target 140314002073744
 		label "right"
 	]
 	edge
 	[
-		source 140222465583104
-		target 140222465583152
+		source 140314002073600
+		target 140314002073648
 		label "left"
 	]
 	node
 	[
-		id 140222465583296
+		id 140314002073792
 		label "1"
 	]
 
 	edge
 	[
-		source 140222465583104
-		target 140222465583296
+		source 140314002073600
+		target 140314002073792
 		label "right"
 	]
 	edge
 	[
-		source 140222465583056
-		target 140222465583104
+		source 140314002073552
+		target 140314002073600
 		label "left"
 	]
 	node
 	[
-		id 140222465583344
+		id 140314002073840
 		label "x"
 	]
 
 	edge
 	[
-		source 140222465583056
-		target 140222465583344
+		source 140314002073552
+		target 140314002073840
 		label "right"
 	]
 ]

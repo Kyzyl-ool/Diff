@@ -10,10 +10,10 @@ int main()
 	
 	tree_Print_GML(t1, "expr1.gml");
 	
-	t2->root = d(t1->root);
+	t2->root = d_s(t1->root);
 	
 	
-	tree_Print_DED(t2, "expr2.gml");
+	tree_Print_GML(t2, "expr2.gml");
 
 	tree_Destroy(t1);
 	tree_Destroy(t2);
