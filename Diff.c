@@ -9,8 +9,6 @@ Node* tmp1;
 Node* tmp2;
 Node* tmp3;
 
-int test = 0;
-
 #define DEBUG_DIFF
 #define DEBUG_SIMPLIFY
 
@@ -30,10 +28,12 @@ int test = 0;
 
 #define _IF_EQUAL(node1, node2) (node1->t == NUMBER_INT && node2->t == NUMBER_INT && node1->value.i == node2->value.i) || (node1->t == NUMBER_DOUBLE && node2->t == NUMBER_DOUBLE && node1->value.d == node2->value.d) || (node1->t == VARIABLE && node2->t == VARIABLE && node1->value.vt == node2->value.vt)
 #define _IF_EQUAL_TO(the_node, the_value) (the_node->t == NUMBER_INT && the_node->value.i == the_value) || (the_node->t == NUMBER_DOUBLE && the_node->value.d == the_value)
+#define _IS_NEEDED_ON_BRACKETS(the_node) the_node->t == OPERATOR && (the_node->value.o == PLUS || the_node->value.o == MINUS)
+#define _IS_NEEDED_ON_MULTIPLY_SIGN(left_node, right_node) (left_node->t == OPERATOR && right_node->t == OPERATOR) || (left_node->t != OPERATOR && right_node->t != OPERATOR)
 
 #define _RAISE_LEFT(the_node) if (the_node->parent) if (the_node->parent->left == the_node) {tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->left = the_node;the_node->parent = tmp_par;}else{tree_node_Destroy(the_node->right);Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->right = the_node;the_node->parent = tmp_par;} else{tree_node_Destroy(the_node->right);the_node = c_parent(the_node->left);the_node->parent = NULL;}
-
 #define _RAISE_RIGHT(the_node) if (the_node->parent) if (the_node->parent->left == the_node) { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->left = the_node; the_node->parent = tmp_par; } else { tree_node_Destroy(the_node->left); Node* tmp_par = the_node->parent; the_node = c_parent(the_node->right); tmp_par->right = the_node; the_node->parent = tmp_par;} else {tree_node_Destroy(the_node->left);  the_node = c_parent(the_node->right); the_node->parent = NULL;}
+
 
 #define DO(operation) printf("%s\n", #operation); operation
 
@@ -42,6 +42,12 @@ Node* d(Node* node)
 	#ifdef DEBUG_DIFF
 	printf("Вызвана фунцкия d с типом [%s]...\n", type_to_string(node->t));
 	#endif
+	
+	FILE* fo = fopen("report.tex", "a");
+	fprintf(fo, " = ");
+	print_latex(node, fo);
+	fclose(fo);
+	
 	switch (node->t)
 	{
 		case NUMBER_DOUBLE:
@@ -361,12 +367,23 @@ Node* diff_Tan(Node* node)
 	printf("Взятие производной tan...\n");
 	#endif
 	
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE);
 	
-	assert(0);
+	_SET_NEWCHILD_INTEGER(new_node, left, 1);
+	_SET_NEWCHILD_OPERATOR(new_node, right, POWER);
+	
+	_SET_NEWCHILD_OPERATOR(new_node->right, left,  COS);
+	_SET_NEWCHILD_INTEGER(new_node->right, right, 2);
+	
+	_SET_CHILD_LEFT(new_node->right->left, c_parent(node->left));
+	
+	
 	
 	#ifdef DEBUG_DIFF
 	printf("...производная tan взята.\n");
 	#endif
+	
+	return new_node;
 }
 
 Node* diff_Sinh(Node* node)
@@ -374,11 +391,15 @@ Node* diff_Sinh(Node* node)
 	#ifdef DEBUG_DIFF
 	printf("Взятие производной sinh...\n");
 	#endif
-	assert(0);
+	
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, COSH);
+	
+	_SET_CHILD_LEFT(new_node, c_parent(node->left));
 	
 	#ifdef DEBUG_DIFF
 	printf("...производная sinh взята.\n");
 	#endif
+	return new_node;
 }
 
 Node* diff_Cosh(Node* node)
@@ -386,11 +407,15 @@ Node* diff_Cosh(Node* node)
 	#ifdef DEBUG_DIFF
 	printf("Взятие производной cosh...\n");
 	#endif
-	assert(0);
+	
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, SINH);
+	
+	_SET_CHILD_LEFT(new_node, c_parent(node->left));
 	
 	#ifdef DEBUG_DIFF
 	printf("...производная cosh взята.\n");
 	#endif
+	return new_node;
 }
 
 Node* diff_Tanh(Node* node)
@@ -398,11 +423,22 @@ Node* diff_Tanh(Node* node)
 	#ifdef DEBUG_DIFF
 	printf("Взятие производной tanh...\n");
 	#endif
-	assert(0);
+	
+	_CREATE_CHILD_OPERATOR(node->parent, new_node, DIVIDE);
+	
+	_SET_NEWCHILD_INTEGER(new_node, left, 1);
+	_SET_NEWCHILD_OPERATOR(new_node, right, POWER);
+	
+	_SET_NEWCHILD_OPERATOR(new_node->right, left,  COSH);
+	_SET_NEWCHILD_INTEGER(new_node->right, right, 2);
+	
+	_SET_CHILD_LEFT(new_node->right->left, c_parent(node->left));
+	
 	
 	#ifdef DEBUG_DIFF
 	printf("...производная tanh взята.\n");
 	#endif
+	return new_node;
 }
 
 Node* diff_Power_function(Node* node)
@@ -439,7 +475,6 @@ Node* diff_Exponential_function(Node* node)
 						
 	#define f node->left
 	#define g node->right
-	
 	_CREATE_CHILD_OPERATOR(node->parent, new_node, MULTIPLY);
 	_SET_CHILD_RIGHT(new_node, c_parent(node));
 	_SET_NEWCHILD_OPERATOR(new_node, left, PLUS);
@@ -450,13 +485,12 @@ Node* diff_Exponential_function(Node* node)
 	_SET_NEWCHILD_OPERATOR(new_node->left->left, left, DIVIDE);
 	_SET_CHILD_RIGHT(new_node->left->left, d(f));
 	
-	_SET_CHILD(new_node->left->left->left, g, f);
+	_SET_CHILD(new_node->left->left->left, c_parent(g), c_parent(f));
 	
 	_SET_CHILD_LEFT(new_node->left->right, d(g));
 	_SET_NEWCHILD_OPERATOR(new_node->left->right, right, LN);
 	
 	_SET_CHILD_LEFT(new_node->left->right->right, c_parent(f));
-	
 	#undef f
 	#undef g
 	
@@ -475,7 +509,7 @@ Node* diff_Ln_function(Node* node)
 	
 	_SET_NEWCHILD_INTEGER(new_node, left, 1);
 	
-	_SET_CHILD_RIGHT(new_node, node->left);
+	_SET_CHILD_RIGHT(new_node, c_parent(node->left));
 	
 	#ifdef DEBUG_DIFF
 	printf("...производная натурального логарифма взята.\n");
@@ -855,11 +889,85 @@ void print_latex(Node* node, FILE* f)
 				}
 				case MULTIPLY:
 				{
-					fprintf(f, "(");
-					print_latex(node->left, f);
-					fprintf(f, ")*(");
-					print_latex(node->right, f);
-					fprintf(f, ")");
+					if (_IS_NEEDED_ON_BRACKETS(node->left))
+					{
+						if (_IS_NEEDED_ON_BRACKETS(node->right))
+						{
+							if (_IS_NEEDED_ON_MULTIPLY_SIGN(node->left, node->right))
+							{
+								fprintf(f, "(");
+								print_latex(node->left, f);
+								fprintf(f, ")*(");
+								print_latex(node->right, f);
+								fprintf(f, ")");
+							}
+							else
+							{
+								fprintf(f, "(");
+								print_latex(node->left, f);
+								fprintf(f, ")(");
+								print_latex(node->right, f);
+								fprintf(f, ")");
+							}
+						}
+						else
+						{
+							if (_IS_NEEDED_ON_MULTIPLY_SIGN(node->left, node->right))
+							{
+								fprintf(f, "(");
+								print_latex(node->left, f);
+								fprintf(f, ")*{");
+								print_latex(node->right, f);
+								fprintf(f, "}");
+							}
+							else
+							{
+								fprintf(f, "(");
+								print_latex(node->left, f);
+								fprintf(f, "){");
+								print_latex(node->right, f);
+								fprintf(f, "}");
+							}
+						}
+					}
+					else if (_IS_NEEDED_ON_BRACKETS(node->right))
+					{
+						if (_IS_NEEDED_ON_MULTIPLY_SIGN(node->left, node->right))
+						{
+							fprintf(f, "{");
+							print_latex(node->left, f);
+							fprintf(f, "}*(");
+							print_latex(node->right, f);
+							fprintf(f, ")");
+						}
+						else
+						{
+							fprintf(f, "{");
+							print_latex(node->left, f);
+							fprintf(f, "}(");
+							print_latex(node->right, f);
+							fprintf(f, ")");
+						}
+					}
+					else
+					{
+						if (_IS_NEEDED_ON_MULTIPLY_SIGN(node->left, node->right))
+						{
+							fprintf(f, "{");
+							print_latex(node->left, f);
+							fprintf(f, "}*{");
+							print_latex(node->right, f);
+							fprintf(f, "}");
+						}
+						else
+						{
+							fprintf(f, "{");
+							print_latex(node->left, f);
+							fprintf(f, "}{");
+							print_latex(node->right, f);
+							fprintf(f, "}");
+						}
+					}
 					break;
 				}
 				case PLUS:
@@ -882,11 +990,22 @@ void print_latex(Node* node, FILE* f)
 				}
 				case POWER:
 				{
-					fprintf(f, "{");
-					print_latex(node->left, f);
-					fprintf(f, "}^{");
-					print_latex(node->right, f);
-					fprintf(f, "}");
+					if (_IS_NEEDED_ON_BRACKETS(node->left))
+					{
+						fprintf(f, "(");
+						print_latex(node->left, f);
+						fprintf(f, ")^{");
+						print_latex(node->right, f);
+						fprintf(f, "}");
+					}
+					else
+					{
+						fprintf(f, "{");
+						print_latex(node->left, f);
+						fprintf(f, "}^{");
+						print_latex(node->right, f);
+						fprintf(f, "}");
+					}
 					break;
 				}
 				case SIN:

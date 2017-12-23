@@ -347,7 +347,11 @@ void tree_node_print_GML(Node* node, FILE* dump)
 	{
 		tree_node_print_GML(node->right, dump);
 		tree_edge_print_GML(node, node->right, 0, dump, "right");
-	}	
+	}
+	if (node->parent)
+	{
+		tree_edge_print_GML(node, node->parent, 0, dump, "parent");
+	}
 }
 
 void tree_edge_print_GML(Node* node1, Node* node2, double value, FILE* dump, char* who)

@@ -2,164 +2,152 @@ graph
 [
 	node
 	[
-		id 140473503066080
-		label "PLUS"
-	]
-
-	node
-	[
-		id 140473503066128
-		label "MINUS"
-	]
-
-	node
-	[
-		id 140473503066176
-		label "PLUS"
-	]
-
-	node
-	[
-		id 140473503066256
-		label "SIN"
-	]
-
-	node
-	[
-		id 140473503066304
-		label "DIVIDE"
-	]
-
-	node
-	[
-		id 140473503066352
-		label "PLUS"
-	]
-
-	node
-	[
-		id 140473503066400
-		label "x"
-	]
-
-	edge
-	[
-		source 140473503066352
-		target 140473503066400
-		label "left"
-	]
-	node
-	[
-		id 140473503066448
-		label "1"
-	]
-
-	edge
-	[
-		source 140473503066352
-		target 140473503066448
-		label "right"
-	]
-	edge
-	[
-		source 140473503066304
-		target 140473503066352
-		label "left"
-	]
-	node
-	[
-		id 140473503066496
-		label "2"
-	]
-
-	edge
-	[
-		source 140473503066304
-		target 140473503066496
-		label "right"
-	]
-	edge
-	[
-		source 140473503066256
-		target 140473503066304
-		label "left"
-	]
-	edge
-	[
-		source 140473503066176
-		target 140473503066256
-		label "left"
-	]
-	node
-	[
-		id 140473503066544
-		label "1"
-	]
-
-	edge
-	[
-		source 140473503066176
-		target 140473503066544
-		label "right"
-	]
-	edge
-	[
-		source 140473503066128
-		target 140473503066176
-		label "left"
-	]
-	node
-	[
-		id 140473503066592
-		label "x"
-	]
-
-	edge
-	[
-		source 140473503066128
-		target 140473503066592
-		label "right"
-	]
-	edge
-	[
-		source 140473503066080
-		target 140473503066128
-		label "left"
-	]
-	node
-	[
-		id 140473503066640
+		id 140488946493408
 		label "POWER"
 	]
 
 	node
 	[
-		id 140473503066688
+		id 140488946493456
+		label "PLUS"
+	]
+
+	node
+	[
+		id 140488946493504
+		label "PLUS"
+	]
+
+	node
+	[
+		id 140488946493584
+		label "SIN"
+	]
+
+	node
+	[
+		id 140488946493632
 		label "x"
 	]
 
 	edge
 	[
-		source 140473503066640
-		target 140473503066688
+		source 140488946493584
+		target 140488946493632
+		label "left"
+	]
+	edge
+	[
+		source 140488946493504
+		target 140488946493584
 		label "left"
 	]
 	node
 	[
-		id 140473503066736
-		label "2"
+		id 140488946493680
+		label "TAN"
+	]
+
+	node
+	[
+		id 140488946493728
+		label "x"
 	]
 
 	edge
 	[
-		source 140473503066640
-		target 140473503066736
+		source 140488946493680
+		target 140488946493728
+		label "left"
+	]
+	edge
+	[
+		source 140488946493504
+		target 140488946493680
 		label "right"
 	]
 	edge
 	[
-		source 140473503066080
-		target 140473503066640
+		source 140488946493456
+		target 140488946493504
+		label "left"
+	]
+	node
+	[
+		id 140488946493776
+		label "MULTIPLY"
+	]
+
+	node
+	[
+		id 140488946493824
+		label "3"
+	]
+
+	edge
+	[
+		source 140488946493776
+		target 140488946493824
+		label "left"
+	]
+	node
+	[
+		id 140488946493872
+		label "x"
+	]
+
+	edge
+	[
+		source 140488946493776
+		target 140488946493872
+		label "right"
+	]
+	edge
+	[
+		source 140488946493456
+		target 140488946493776
+		label "right"
+	]
+	edge
+	[
+		source 140488946493408
+		target 140488946493456
+		label "left"
+	]
+	node
+	[
+		id 140488946493920
+		label "DIVIDE"
+	]
+
+	node
+	[
+		id 140488946493968
+		label "1"
+	]
+
+	edge
+	[
+		source 140488946493920
+		target 140488946493968
+		label "left"
+	]
+	node
+	[
+		id 140488946494016
+		label "x"
+	]
+
+	edge
+	[
+		source 140488946493920
+		target 140488946494016
+		label "right"
+	]
+	edge
+	[
+		source 140488946493408
+		target 140488946493920
 		label "right"
 	]
 ]
