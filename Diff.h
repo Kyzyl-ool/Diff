@@ -4,6 +4,7 @@ int simplified;
 
 Node* d(Node* node); //Производнпая выражения
 Node* c(Node* node); //Копия узла
+Node* c_parent(Node* node);
 int if_depends_on_variable(Node* node);
 Node* simplify(Node* node);
 Node* simplifyfy(Node* node);

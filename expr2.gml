@@ -1,9 +1,1 @@
-graph
-[
-	node
-	[
-		id 140292166526896
-		label "0"
-	]
-
-]
+("DIVIDE"("MINUS"("MULTIPLY"("MINUS"("MULTIPLY"("MULTIPLY"("2")("POWER"("x")("MINUS"("2")("1"))))("1"))("0"))("x"))("MULTIPLY"("MINUS"("POWER"("x")("2"))("1"))("1")))("POWER"("x")("2")))
