@@ -9,8 +9,8 @@ Node* tmp1;
 Node* tmp2;
 Node* tmp3;
 
-#define DEBUG_DIFF
-#define DEBUG_SIMPLIFY
+//~ #define DEBUG_DIFF
+//~ #define DEBUG_SIMPLIFY
 
 #define _CREATE_CHILD(the_parent, the_node, the_type) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = the_type; the_node->left = NULL; the_node->right = NULL
 #define _CREATE_CHILD_OPERATOR(the_parent, the_node, the_value) Node* the_node = (Node* )calloc(1, sizeof(Node)); the_node->parent = the_parent; the_node->t = OPERATOR; the_node->left = NULL; the_node->right = NULL; the_node->value.o = the_value
@@ -42,11 +42,6 @@ Node* d(Node* node)
 	#ifdef DEBUG_DIFF
 	printf("Вызвана фунцкия d с типом [%s]...\n", type_to_string(node->t));
 	#endif
-	
-	FILE* fo = fopen("report.tex", "a");
-	fprintf(fo, " = ");
-	print_latex(node, fo);
-	fclose(fo);
 	
 	switch (node->t)
 	{
