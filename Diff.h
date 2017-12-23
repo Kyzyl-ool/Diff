@@ -31,4 +31,5 @@ Node* diff_Ln_function(Node* node);
 Node* diff_Logarithmic_function(Node* node);
 
 
-void Make_Report(char* file_name); //Отчет дифференцирования в LaTeX-формате
+void Make_Report(Node* root, char* file_name); //Отчет дифференцирования в LaTeX-формате
+void print_latex(Node* node, FILE* f);

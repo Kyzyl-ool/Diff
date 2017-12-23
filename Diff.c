@@ -28,7 +28,7 @@ int test = 0;
 #define _SET_INTEGER(the_node, the_value) if (the_node->left) tree_node_Destroy(the_node->left); if (the_node->right) tree_node_Destroy(the_node->right); the_node->t = NUMBER_INT; the_node->value.i = the_value; the_node->left = NULL; the_node->right = NULL
 #define _SET_DOUBLE(the_node, the_value) if (the_node->left) tree_node_Destroy(the_node->left); if (the_node->right) tree_node_Destroy(the_node->right); the_node->t = NUMBER_DOUBLE; the_node->value.d = the_value; the_node->left = NULL; the_node->right = NULL
 
-#define _IF_EQUAL(node1, node2) (node1->t == NUMBER_INT && node2->t == NUMBER_INT && node1->value.i == node2->value.i) || (node1->t == NUMBER_DOUBLE && node2->t == NUMBER_DOUBLE && node1->value.d == node2->value.d)
+#define _IF_EQUAL(node1, node2) (node1->t == NUMBER_INT && node2->t == NUMBER_INT && node1->value.i == node2->value.i) || (node1->t == NUMBER_DOUBLE && node2->t == NUMBER_DOUBLE && node1->value.d == node2->value.d) || (node1->t == VARIABLE && node2->t == VARIABLE && node1->value.vt == node2->value.vt)
 #define _IF_EQUAL_TO(the_node, the_value) (the_node->t == NUMBER_INT && the_node->value.i == the_value) || (the_node->t == NUMBER_DOUBLE && the_node->value.d == the_value)
 
 #define _RAISE_LEFT(the_node) if (the_node->parent) if (the_node->parent->left == the_node) {tree_node_Destroy(the_node->right); Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->left = the_node;the_node->parent = tmp_par;}else{tree_node_Destroy(the_node->right);Node* tmp_par = the_node->parent;the_node = c_parent(the_node->left);tmp_par->right = the_node;the_node->parent = tmp_par;} else{tree_node_Destroy(the_node->right);the_node = c_parent(the_node->left);the_node->parent = NULL;}
@@ -629,6 +629,19 @@ Node* simplify(Node* node)
 					#endif
 					break;
 				}
+				if (_IF_EQUAL(node->left, node->right))
+				{
+					#ifdef DEBUG_SIMPLIFY
+					printf("Упрощение a/a...\n");
+					#endif
+					_SET_INTEGER(node, 1);
+					
+					simplified += 1;
+					#ifdef DEBUG_SIMPLIFY
+					printf("...упрощение a/a завершено.\n");
+					#endif
+					break;
+				}
 				break;
 			}
 			case PLUS:
@@ -755,265 +768,6 @@ Node* simplify(Node* node)
 		simplify(node->right);
 	return node;
 }
-/*
-Node* simplify(Node* node)
-{
-	#ifdef DEBUG_SIMPLIFY
-	printf("Получил узел с типом [%s]...\n", type_to_string(node->t));
-	#endif
-	if (node->t == OPERATOR)
-	{
-		#ifdef DEBUG_SIMPLIFY
-		printf("Узел имеет оператор [%s]...\n", operator_to_string(node->value.o));
-		#endif
-		switch (node->value.o)
-		{
-			case MULTIPLY:
-			{
-				if ((node->left->value.i == 0 && node->left->t == NUMBER_INT) || (node->right->value.i == 0 && node->right->t == NUMBER_INT))
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Выполняется упрощение умножения на ноль...\n");
-					#endif
-					tree_Delete_node(node->left);
-					tree_Delete_node(node->right);
-					node->t = NUMBER_INT;
-					node->value.i = 0;
-					node->left = NULL;
-					node->right = NULL;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение умножения на ноль выполнено.\n");
-					#endif
-					break;
-				}
-				if (node->left->value.i == 1 && node->left->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение умножения на единицу...\n");
-					#endif
-					Node tmp = *node->right;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение умножения на единицу завершнено.\n");
-					#endif
-					break;
-				}
-				else if (node->right->value.i == 1 && node->right->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение умножения на единицу...\n");
-					#endif
-					Node tmp = *node->left;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение умножения на единицу завернено.\n");
-					#endif
-					break;
-				}
-				if (node->left->t == NUMBER_INT && node->left->value.i == -1 && node->right->t == NUMBER_INT && node->right->value.i == -1)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение (-1)*(-1)...\n");
-					#endif
-					free(node->left);
-					free(node->right);
-					node->value.i = 1;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение (-1)*(-1) завершено.\n");
-					#endif
-				}
-				break;
-			}
-			case DIVIDE:
-			{
-				if (node->right->value.i == 1 && node->right->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение деления на единицу...\n");
-					#endif
-					Node tmp = *node->left;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение деления на единицу выполнено.\n");
-					#endif
-					break;
-				}
-				if (node->left->value.i == 0 && node->left->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение частного с нулевым делимым...\n");
-					#endif
-					Node* tmp = node->parent;
-					tree_node_Destroy(node);
-					_CREATE_CHILD(tmp, node, NUMBER_INT);
-					node->value.i = 0;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...упрощение частного с нулевым делимым завершено.\n");
-					#endif
-					break;
-				}
-				break;
-			}
-			case PLUS:
-			{
-				if (node->left->value.i == 0 && node->left->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение 0+a...\n");
-					#endif
-					Node tmp = *node->right;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...0+a упрощено.\n");
-					#endif
-					break;
-				}
-				if (node->right->value.i == 0 && node->right->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение a+0...\n");
-					#endif
-					Node tmp = *node->left;
-					free(node->left);
-					free(node->right);
-					*node = tmp;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("...a+0 упрощено.\n");
-					#endif
-					break;
-				}
-				break;
-			}
-			case MINUS:
-			{
-				if (node->left->value.i == 0 && node->left->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение 0-a...\n");
-					#endif
-					node->t = OPERATOR;
-					node->value.o = MULTIPLY;
-					node->left->value.i = -1;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("0-a упрощено.\n");
-					#endif
-					break;
-				}
-				if (node->right->value.i == 0 && node->right->t == NUMBER_INT)
-				{
-					#ifdef DEBUG_SIMPLIFY
-					printf("Упрощение a-0...\n");
-					#endif
-					node->t = node->left->t;
-					node->value = node->left->value;
-					tree_Delete_node(node->right);
-					node = node->left;
-					simplified += 1;
-					#ifdef DEBUG_SIMPLIFY
-					printf("а-0 упрощено.\n");
-					#endif
-					break;
-				}
-				if (_IF_EQUAL(node->left, node->right))
-				{
-					#ifdef DEBUG_DIFF
-					printf("Упрощение a-a...\n");
-					#endif
-					
-					tree_Delete_node(node->left);
-					tree_Delete_node(node->right);
-					node->t = NUMBER_INT;
-					node->value.i = 0;
-					node->left = NULL;
-					node->right = NULL;
-					simplified += 1;
-					
-					
-					#ifdef DEBUG_DIFF
-					printf("...упрощение a-a выполнено.\n");
-					#endif
-					break;
-				}
-				break;
-			}
-			case POWER:
-			{
-				if (node->right->t == NUMBER_INT)
-				{
-					if (node->right->value.i == 1)
-					{
-						#ifdef DEBUG_DIFF
-						printf("Упрощение выражения вида a^1...\n");
-						#endif
-						Node tmp = *node->left;
-						free(node->right);
-						*node = tmp;
-						simplified += 1;
-						#ifdef DEBUG_DIFF
-						printf("...упрощение вида a^1 завершено.\n");
-						#endif
-						break;
-					}
-					else
-					{
-						if (node->right->value.i == 0)
-						{
-							#ifdef DEBUG_DIFF
-							printf("Упрощение выражения вида a^0...\n");
-							#endif
-							Node* tmp = node->parent;
-							tree_Delete_node(node);
-							node = (Node* )calloc(1, sizeof(Node));
-							node->t = NUMBER_INT;
-							node->value.i = 1;
-							node->left = NULL;
-							node->right = NULL;
-							node->parent = tmp;
-							simplified += 1;
-							#ifdef DEBUG_DIFF
-							printf("...упрощение выражения вида a^0 завершено.\n");
-							#endif
-							break;
-						}
-					}
-				}
-				
-				break;
-			}
-			default:
-			{
-				#ifdef DEBUG_SIMPLIFY
-				printf("НЕИЗВЕТСНО, КАК УПРОЩАТЬ ОПРЕТАОРЫ [%s]\n", operator_to_string(node->value.o));
-				#endif
-			}
-		}
-	}
-	
-	if (node->left)
-		simplify(node->left);
-	if (node->right)
-		simplify(node->right);
-
-	return node;
-}
-*/
 
 Node* d_s(Node* node)
 {
@@ -1051,4 +805,151 @@ Node* d_complex_function(Node* node, Node* (*diff)(Node* node), Node* argument)
 	printf("...взятие производной сложной функции завершено.\n");
 	#endif
 	return new_node;
+}
+
+void Make_Report(Node* root, char* file_name) //Отчет дифференцирования в LaTeX-формате
+{
+	FILE* fo = fopen(file_name, "w");
+	
+	print_latex(root, fo);
+	
+	fclose(fo);
+}
+
+void print_latex(Node* node, FILE* f)
+{
+	switch (node->t)
+	{
+		case NUMBER_DOUBLE:
+		{
+			fprintf(f, "%lg", node->value.d);
+			break;
+		}
+		case NUMBER_INT:
+		{
+			fprintf(f, "%d", node->value.i);
+			break;
+		}
+		case CONSTANT:
+		{
+			fprintf(f, "%s", constant_to_string(node->value.c));
+			break;
+		}
+		case VARIABLE:
+		{
+			fprintf(f, "%s", vartype_to_string(node->value.vt));
+			break;
+		}
+		case OPERATOR:
+		{
+			switch (node->value.o)
+			{
+				case DIVIDE:
+				{
+					fprintf(f, "\\frac{");
+					print_latex(node->left, f);
+					fprintf(f, "}{");
+					print_latex(node->right, f);
+					fprintf(f, "}");
+					break;
+				}
+				case MULTIPLY:
+				{
+					fprintf(f, "(");
+					print_latex(node->left, f);
+					fprintf(f, ")*(");
+					print_latex(node->right, f);
+					fprintf(f, ")");
+					break;
+				}
+				case PLUS:
+				{
+					fprintf(f, "{");
+					print_latex(node->left, f);
+					fprintf(f, "}+{");
+					print_latex(node->right, f);
+					fprintf(f, "}");
+					break;
+				}
+				case MINUS:
+				{
+					fprintf(f, "{");
+					print_latex(node->left, f);
+					fprintf(f, "}-{");
+					print_latex(node->right, f);
+					fprintf(f, "}");
+					break;
+				}
+				case POWER:
+				{
+					fprintf(f, "{");
+					print_latex(node->left, f);
+					fprintf(f, "}^{");
+					print_latex(node->right, f);
+					fprintf(f, "}");
+					break;
+				}
+				case SIN:
+				{
+					fprintf(f, "sin({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case COS:
+				{
+					fprintf(f, "cos({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case TAN:
+				{
+					fprintf(f, "tg({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case COT:
+				{
+					fprintf(f, "ctg({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case SINH:
+				{
+					fprintf(f, "sh({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case COSH:
+				{
+					fprintf(f, "ch({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case TANH:
+				{
+					fprintf(f, "th({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				case LN:
+				{
+					fprintf(f, "ln({");
+					print_latex(node->left, f);
+					fprintf(f, "})");
+					break;
+				}
+				default:
+				{
+					printf("Nothing\n");
+				}
+			}
+		}
+	}
 }

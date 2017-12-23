@@ -10,11 +10,13 @@ int main()
 	
 	tree_Print_GML(t1, "expr1.gml");
 	
-	t2->root = simplify(d(t1->root));
+	t2->root = d_s(t1->root);
 	
 	
 	tree_Print_GML(t2, "expr2.gml");
-
+	Make_Report(t1->root, "test.tex");
+	Make_Report(t2->root, "test_diff.tex");
+	
 	tree_Destroy(t1);
 	tree_Destroy(t2);
 	
