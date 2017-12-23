@@ -20,6 +20,7 @@ typedef enum operators
 	COTH,
 	COT,
 	LN,
+	LOG,
 	TAN,
 	TANH,
 	

@@ -21,12 +21,18 @@ tree* tree_Construct(char* tree_name)
 
 void tree_Destroy(tree* t)
 {
+	#ifdef DEBUG
+	assert(t);
+	#endif
 	tree_node_Destroy(t->root);
 	free(t);
 }
 
 void tree_node_Destroy(Node* node)
 {
+	#ifdef DEBUG
+	assert(node);
+	#endif
 	if (node->left)
 	{
 		tree_node_Destroy(node->left);
@@ -72,6 +78,9 @@ int tree_Insert_to_end(Node* parental_node, node_code who, type t, data value)
 
 int tree_Delete_node(Node* node)
 {
+	#ifdef DEBUG
+	assert(node);
+	#endif
 	switch (tree_node_which_am_I_child(node))
 	{
 		case LEFT_NODE:
@@ -95,18 +104,21 @@ int tree_Delete_node(Node* node)
 		default:
 		{
 			#ifdef DEBUG
-			printf("tree_Delete_node: TREE_NODE_FIASKO\n");
+			printf("tree_node_Destroy: TREE_NODE_FIASKO\n");
 			#endif
 			return TREE_NODE_FIASKO;
 			break;
 		}
 	}
 	free(node);
+	return 0;
 }
 
 int tree_node_which_am_I_child(Node* node)
 {
+	#ifdef DEBUG
 	assert(node);
+	#endif
 	if (node->parent)
 	{
 		if (node->parent->left && node->parent->left == node)
@@ -304,7 +316,9 @@ void tree_print_meaning_of_error_code_old(int code)
 
 int tree_Print_GML(tree* t, char* gml_file_name)
 {
+	#ifdef DEBUG
 	assert(t);
+	#endif
 	FILE* dump = fopen(gml_file_name, "w");
 	
 	fprintf(dump, "graph\n[\n");
@@ -319,7 +333,9 @@ int tree_Print_GML(tree* t, char* gml_file_name)
 
 void tree_node_print_GML(Node* node, FILE* dump)
 {
+	#ifdef DEBUG
 	assert(node);
+	#endif
 	fprintf(dump, "	node\n	[\n		id %llu\n		label \"%s\"\n	]\n\n", (unsigned long long int)node, node_data(node));
 	if (node->left)
 	{
@@ -331,11 +347,19 @@ void tree_node_print_GML(Node* node, FILE* dump)
 	{
 		tree_node_print_GML(node->right, dump);
 		tree_edge_print_GML(node, node->right, 0, dump, "right");
-	}	
+	}
+	if (node->parent)
+	{
+		tree_edge_print_GML(node, node->parent, 0, dump, "parent");
+	}
 }
 
 void tree_edge_print_GML(Node* node1, Node* node2, double value, FILE* dump, char* who)
 {
+	#ifdef DEBUG
+	assert(node1);
+	assert(node2);
+	#endif
 	if (value)
 		fprintf(dump, "	edge\n	[\n		source %llu\n		target %llu		value %lg\n		label \"%s\"\n	]\n", (unsigned long long int)node1, (unsigned long long int)node2, value, who);
 	else
@@ -431,6 +455,9 @@ void array_Assign(char* arr1, char* arr2, char apart_from_ends)
 
 void tree_Print_DED(tree* t, char* ded_file_name)
 {
+	#ifdef DEBUG
+	assert(t);
+	#endif
 	FILE* fo = fopen(ded_file_name, "w");
 	
 	tree_node_print(t->root, fo);
@@ -478,15 +505,14 @@ Node* tree_read_node(char* text, int* i)
 		Node* node = (Node* )calloc(1, sizeof(Node));
 		int ii = 0;
 		char256 label;
-		*i += 2;
-		while (text[*i] != '\"')
+		*i += 1;
+		while (text[*i] != '(' && text[*i] != ')')
 		{
 			label[ii] = text[*i];
 			*i += 1;
 			ii++;
 		}
 		label[ii] = '\0';
-		*i += 1;
 		char256 tmp;
 		array_Assign(tmp, label, 0);
 		switch (tmp[0])
@@ -597,16 +623,25 @@ Node* tree_read_node(char* text, int* i)
 					}
 					else
 					{
-						node->value.o = COT;	
+						node->value.o = COT;
 					}
 				}
 				break;
 			}
 			case 'l':
 			{
-				node->t = OPERATOR;
-				node->value.o = LN;
-				break;
+				if (tmp[1] == 'n')
+				{
+					node->t = OPERATOR;
+					node->value.o = LN;
+					break;
+				}
+				else if (tmp[1] == 'o')
+				{
+					node->t = OPERATOR;
+					node->value.o = LOG;
+					break;
+				}
 			}
 			case 'e':
 			{
@@ -653,8 +688,9 @@ Node* tree_read_node(char* text, int* i)
 		}
 		
 		node->left = tree_read_node(text, i);
+		if (node->left) *i += 1;
 		node->right = tree_read_node(text, i);
-		*i += 1;
+		if (node->right) *i += 1;
 		return node;
 	}
 	else
@@ -686,6 +722,7 @@ char* operator_to_string(operator o)
 		_RET_CODE(SIN)
 		_RET_CODE(COS)
 		_RET_CODE(LN)
+		_RET_CODE(LOG)
 		_RET_CODE(TAN)
 		_RET_CODE(COT)
 		_RET_CODE(SINH)
@@ -732,6 +769,9 @@ char* constant_to_string(constant c)
 
 char* node_data(Node* node)
 {
+	#ifdef DEBUG
+	assert(node);
+	#endif
 	for (int i = 0; i < 256; i++) printstring[i] = 0;
 	switch (node->t)
 	{
